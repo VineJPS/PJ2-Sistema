@@ -1,12 +1,12 @@
-# Projeto integrador 2
+# Projeto Integrador 2
 
-##  Tecnologias
+## Tecnologias
 * **Backend:** Laravel
-* **Frontend:** tailwind
+* **Frontend:** Tailwind CSS
 * **Infraestrutura:** Docker & Docker Compose
 * **Banco de Dados:** SQL 
 
-##  Equipe
+## Equipe
 * **Vinicius** (VineJPS)
 * **Renan** (RenanHB1)
 * **Rebeca** (Rebeca123558)
@@ -14,15 +14,18 @@
 
 ---
 
-##  Iniciando o Projeto
-| Etapa | Comando | O que faz? |
-| :--- | :--- | :--- |
-| **. Subindo o container (Na primeira vez ele da o build)** | `make start` |
-| **. Derrubando o container** | `make stop` | derruba os container do projeto. |
-Em caso de duvidas consulte o Makefile na raiz do projeto ;)
-E caso esteja enfrentando problemas no linux ao executar o makefile, baixe o make: sudo apt update && sudo apt install -y make
+## Iniciando o Projeto
 
----
+| Etapa / Ação | Comando | O que faz? |
+| :--- | :--- | :--- |
+| **Subir o ambiente** | `make start` | Inicia os containers do projeto (executa o build na primeira vez). |
+| **Derrubar o ambiente** | `make stop` | Derruba e interrompe os containers do projeto. |
+
+### 💡 Observações Importantes
+* **Dúvidas com os comandos?** Consulte o arquivo `Makefile` na raiz do projeto para verificar todos os alvos disponíveis.
+* **Problemas no Linux?** Caso encontre erros ao tentar executar o comando `make`, certifique-se de ter a ferramenta instalada em seu sistema operacional executando:
+  ```bash
+  sudo apt update && sudo apt install -y make
 
 ## Abrindo PR
 Crie uma nova Branch (Atualizada) a partir da main com os prefixos "feature" criação de algo novo ou "fix" correção de bugs. EX feature/adicao-zoom || fix/correcao-zoom

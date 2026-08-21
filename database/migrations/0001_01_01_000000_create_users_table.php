@@ -11,29 +11,32 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('usuarios', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('nome');
+            $table->string('cpf');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
+            $table->date('data_nascimento');
+            $table->foreignId('FK_id_nivel')->constrained('niveis');
+            $table->timestamp('email_verificado_em')->nullable();
+            $table->string('senha');
+            $table->rememberToken(); // Mantém o token de "lembrar-me" do Laravel
+            $table->timestamps(); // Cria 'created_at' e 'updated_at' 
         });
 
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
+        Schema::create('tokens_redefinicao_senha', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');
-            $table->timestamp('created_at')->nullable();
+            $table->timestamp('criado_em')->nullable();
         });
 
-        Schema::create('sessions', function (Blueprint $table) {
+        Schema::create('sessoes', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
-            $table->string('ip_address', 45)->nullable();
-            $table->text('user_agent')->nullable();
-            $table->longText('payload');
-            $table->integer('last_activity')->index();
+            $table->foreignId('usuario_id')->nullable()->index();
+            $table->string('endereco_ip', 45)->nullable();
+            $table->text('agente_usuario')->nullable();
+            $table->longText('conteudo');
+            $table->integer('ultima_atividade')->index();
         });
     }
 
@@ -42,8 +45,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
+        Schema::dropIfExists('sessoes');
+        Schema::dropIfExists('tokens_redefinicao_senha');
+        Schema::dropIfExists('usuarios');
     }
 };

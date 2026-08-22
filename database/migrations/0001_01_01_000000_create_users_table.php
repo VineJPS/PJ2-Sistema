@@ -30,13 +30,14 @@ return new class extends Migration
             $table->timestamp('criado_em')->nullable();
         });
 
-        Schema::create('sessoes', function (Blueprint $table) {
+        // Tabela de sessões no padrão exigido pelo Laravel
+        Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('usuario_id')->nullable()->index();
-            $table->string('endereco_ip', 45)->nullable();
-            $table->text('agente_usuario')->nullable();
-            $table->longText('conteudo');
-            $table->integer('ultima_atividade')->index();
+            $table->foreignId('user_id')->nullable()->index();
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->longText('payload');
+            $table->integer('last_activity')->index();
         });
     }
 
@@ -45,7 +46,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sessoes');
+        Schema::dropIfExists('sessions');
         Schema::dropIfExists('tokens_redefinicao_senha');
         Schema::dropIfExists('usuarios');
     }

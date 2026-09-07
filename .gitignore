@@ -25,3 +25,8 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Aider & LLM local files
+.aider*
+.aider.chat.history.md
+.aider.input.history

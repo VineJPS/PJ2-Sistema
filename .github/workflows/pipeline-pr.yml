@@ -1,0 +1,40 @@
+name: Controle de Push e PR na Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  validar-fluxo-main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verificar se o evento é um Push Direto ou um Merge de PR
+        run: |
+          echo "GitHub Ref: ${{ github.ref }}"
+          echo "GitHub Event Name: ${{ github.event_name }}"
+          echo "GitHub Head Ref: ${{ github.head_ref }}"
+          
+          # O GitHub Actions fornece o contexto do commit. 
+          # Quando é um merge de PR, a API do GitHub expõe informações adicionais ou o commit possui características de merge.
+          # No entanto, a forma mais segura de identificar um PR no evento 'push' que atualiza a main é verificar o log do commit mais recente.
+          
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          echo "Mensagem do commit: $COMMIT_MSG"
+          
+          # Verifica se a mensagem do commit contém o padrão padrão de merge do GitHub (ex: "Merge pull request #...")
+          if [[ "$COMMIT_MSG" =~ ^"Merge pull request"# ]] || [[ "$COMMIT_MSG" =~ ^"Merge branch" ]]; then
+            echo "===================================================="
+            echo "✅ SUCESSO: O código está entrando na 'main' via Pull Request."
+            echo "Liberando o fluxo para rodar os próximos passos ou deploy!"
+            echo "===================================================="
+            exit 0
+          else
+            echo "===================================================="
+            echo "❌ ERRO: Tentativa de push DIRETO detectada na 'main'."
+            echo "----------------------------------------------------"
+            echo "Envios diretos para a branch principal são proibidos."
+            echo "Por favor, utilize o fluxo de feature/fix e abra um PR."
+            echo "===================================================="
+            exit 1
+          fi

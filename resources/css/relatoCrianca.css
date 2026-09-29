@@ -1,0 +1,63 @@
+/* Relatos Criança - CSS */
+.conteudoAba {
+    padding: var(--space-md);
+}
+
+.listaRelatos {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+}
+
+.cardRelato {
+    background: var(--cor-branco);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.cardRelato:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.headerRelato {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.iconeUsuario {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--cor-cinza-claro);
+}
+
+.nomeFuncionario {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--cor-primaria);
+    margin: 0;
+}
+
+.textoResumo {
+    color: var(--cor-cinza-médio);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+@media (max-width: 768px) {
+    .listaRelatos {
+        grid-template-columns: 1fr;
+    }
+}

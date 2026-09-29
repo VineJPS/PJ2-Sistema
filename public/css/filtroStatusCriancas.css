@@ -1,0 +1,93 @@
+.secaoFiltro {
+    position: relative;
+    display: inline-block;
+}
+
+.btnFiltro {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.8rem;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem;
+    cursor: pointer;
+}
+
+.btnFiltro:hover {
+    border-color: #2845c4;
+}
+
+.iconeFiltro {
+    width: 1rem;
+    height: 1rem;
+}
+
+.modalFiltro {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 0.5rem;
+    z-index: 50;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    width: 250px;
+}
+
+.filtroContent {
+    padding: 1rem;
+}
+
+.filtroOpcoes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.filtroLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.botoesFiltro {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.btnAplicar {
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 0.7rem 1.1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    flex: 1;
+}
+
+.btnAplicar:hover {
+    background-color: #0e37a7;
+}
+
+.btnLimpar {
+    background-color: transparent;
+    color: #2563eb;
+    border: none;
+    padding: 0.7rem 1.1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    flex: 1;
+}   
+
+.btnLimpar:hover {
+    background-color: #d0d4dd42;
+    color: #0e37a7;
+}

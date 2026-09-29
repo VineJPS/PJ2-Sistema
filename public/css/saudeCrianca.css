@@ -1,0 +1,255 @@
+.conteudoAba {
+  padding: 0;
+  width: 100%;
+}
+
+/* Card Principal Sem Fundo */
+.cardInfo {
+  background-color: transparent;
+  width: 100%;
+}
+
+/* Banner de Alerta em Vermelho */
+.bannerAlertaRemedio {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid #f87171;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 32px;
+}
+
+.iconeAlerta {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.tituloAlertaRemedio {
+  font-size: 15px;
+  font-weight: 700;
+  color: #dc2626;
+  margin: 0;
+}
+
+.subtituloAlertaRemedio {
+  font-size: 13px;
+  font-weight: 600;
+  color: #dc2626;
+  margin: 2px 0 0 0;
+}
+
+/* Blocos de Seções */
+.secaoBloco {
+  margin-bottom: 28px;
+}
+
+.secaoBlocoSemBorda {
+  margin-bottom: 28px;
+}
+
+.secaoTitulo {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0266b3;
+  margin: 0 0 12px 0;
+}
+
+.textoValor {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 400;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.textoCinza {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Grids */
+.gridTrisecao {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.gridDuasColunas {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.labelCampo {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.valorCampo {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 400;
+  margin: 0;
+}
+
+/* Variáveis de Alerta Vermelho Especificadas */
+.labelCampoAlerta {
+  font-size: 14px;
+  color: #b91c1c;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.valorCampoAlerta {
+  font-size: 14px;
+  color: #b91c1c;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Cirurgias */
+.listaCirurgias {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.itemCirurgia {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 500;
+  position: relative;
+}
+
+.itemCirurgia:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: -12px;
+  top: 15%;
+  height: 70%;
+  width: 1px;
+  background-color: #d1d5db;
+}
+
+/* Tags de Doenças */
+.wrapperTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tagDoenca {
+  padding: 8px 20px;
+  border-radius: 20px;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.tagSelecionada {
+  background-color: #c7d2fe;
+  border-color: #a5b4fc;
+  color: #1e3a8a;
+}
+
+/* Botões da Parte Inferior */
+.containerAcoes {
+  display: flex;
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.btnEditarOutline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border: 1px solid #0266b3;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #0266b3;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btnEditarSolid {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border: 1px solid #0266b3;
+  border-radius: 6px;
+  background-color: #0266b3;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.iconeLapis {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
+.iconeLapisBranco {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.pgSaude .inputCampo {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #0266b3;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #111827;
+  background: #fff;
+  outline: none;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.pgSaude textarea.inputCampo {
+  resize: vertical;
+}
+
+.pgSaude .linhaInputs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.pgSaude .listaCirurgiasEdicao {
+  display: flex;
+  flex-direction: column;
+}
+
+.pgSaude .tagEditavel {
+  cursor: pointer;
+  user-select: none;
+}
+
+.pgSaude .tagEditavel:hover {
+  filter: brightness(0.95);
+}
+
+.pgSaude .acoesEdicao {
+  display: flex;
+  gap: 8px;
+}

@@ -1,0 +1,66 @@
+/* Autorizações Criança - CSS */
+.conteudoAba {
+    padding: var(--space-md);
+}
+
+.secaoAutorizacoes {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.cardAutorizacao {
+    background: var(--cor-branco);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.headerAutorizacao {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-md);
+}
+
+.tituloAutorizacao {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--cor-primaria);
+    margin: 0;
+}
+
+.badgeAutorizado {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: var(--cor-sucesso);
+    color: var(--cor-branco);
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badgeNaoAutorizado {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: var(--cor-erro);
+    color: var(--cor-branco);
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.descricaoAutorizacao {
+    color: var(--cor-cinza-médio);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .headerAutorizacao {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-sm);
+    }
+}

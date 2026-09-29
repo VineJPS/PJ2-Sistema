@@ -26,10 +26,22 @@
                 </div>
             </div>
 
-            <span class="badge-status" :class="getBadgeClass()">
-                <span class="ponto-status">●</span> 
-                <span x-text="getStatusLabel()"></span>
-            </span>
+            <div class="status-rematricula">
+                <div class = "status">
+                    <span class="badge-status" :class="getBadgeClass()">
+                        <span class="ponto-status">●</span> 
+                        <span x-text="getStatusLabel()"></span>
+                    </span>
+                </div>
+    
+            
+                <div class="rematricula">
+                    <a href="/crianca/cadastro" class="btnRematricula">
+                        <img src="{{ asset('assets/refresh.svg') }}" alt="Rematrícula">
+                        Rematricular    
+                    </a>
+                </div>
+            </div>
         </div>
 
         <!-- Abas do menu: serve para navegar entre as diferentes seções da criança -->

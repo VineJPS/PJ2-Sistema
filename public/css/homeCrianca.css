@@ -72,9 +72,8 @@
   display: inline-block;
   text-decoration: none;
   padding: 0.85rem 1.75rem;
-  background-color: #2f5fdb;
+  background-image: linear-gradient(to right, #2f5fdb, #4a90e2);
   color: #ffffff;
-  border: 1px solid #7a828a;
   border-radius: 11px;
   font-size: 0.95rem;
   font-weight: 700;
@@ -83,9 +82,8 @@
 }
 
 .btnNovoCadastro:hover {
-  background-color: #f5f5f5;
-  border-color: #111111;
-  color: #111111;
+  background-image: linear-gradient(to left, #2952bb, #4885cb);
+  transition: all 0.3s ease;
 }
 
 /* Seção de Filtro */
@@ -102,6 +100,7 @@
   gap: 0.75rem;
   background: none;
   border: 1px solid #e0e0e0;
+  border-radius: 11px;
   font-size: 1.15rem;
   font-weight: 500;
   color: #111111;

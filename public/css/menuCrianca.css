@@ -341,3 +341,31 @@
 .conteudo-aba {
   padding: 0;
 }
+
+.btnRematricula{
+  display: inline-block;
+  text-decoration: none;
+  padding: 0.85rem 1.75rem;
+  background-image: linear-gradient(to left, #2f5fdb, #4a90e2);
+  color: #ffffff;
+  border-radius: 11px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.btnRematricula:hover {
+  background-image: linear-gradient(to right, #2952bb, #4885cb);
+  transition: all 0.3s ease;
+}
+
+.status-rematricula{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+}

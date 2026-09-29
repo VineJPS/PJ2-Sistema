@@ -1,15 +1,6 @@
 /* Importar Google Fonts - Inter */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
-@import 'tailwindcss';
-@import 'globals.css';
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-
-@theme {
-    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+*{
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 .containerCrianca {
@@ -75,10 +66,13 @@
   background-image: linear-gradient(to right, #2f5fdb, #4a90e2);
   color: #ffffff;
   border-radius: 11px;
-  font-size: 0.95rem;
+  font-size: 1.15rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
+  align-items: center;
+  display: flex;
+  gap: 8px;
 }
 
 .btnNovoCadastro:hover {

@@ -11,7 +11,7 @@
         title="Abrir filtros"
     >
         <img src="{{ asset('assets/filtro.svg') }}" alt="Filtro" class="iconeFiltro" />
-        <span>Filtro</span>
+        <span style = "font-weight: 500;">Filtro</span>
         <img src="{{ asset('assets/arrow-down.svg') }}" alt="Seta para baixo" class="iconeSeta" />
     </button>
 
@@ -22,7 +22,7 @@
          class="modalFiltro"
          style="display: none;">
         <div class="filtroContent">
-            <h4 style="font-size: 1.15rem;">Filtrar por status</h4>
+            <span style="font-size: 1.15rem; font-weight: 400; margin-bottom: 0.5rem; display: block;">Filtrar por status</span>
             <div class="filtroOpcoes">
                 <label class="filtroLabel">
                     <input

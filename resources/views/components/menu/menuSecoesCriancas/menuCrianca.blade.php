@@ -36,7 +36,7 @@
     
             
                 <div class="rematricula">
-                    <a href="/crianca/cadastro" class="btnRematricula">
+                    <a href="#" class="btnRematricula">
                         <img src="{{ asset('assets/refresh.svg') }}" alt="Rematrícula">
                         Rematricular    
                     </a>
@@ -74,7 +74,7 @@
         <div class="tab-content">
 
             <!-- Aba Matrícula -->
-            <div x-show="activeTab === 'Matricula'" style="display: none;">
+            <div x-show="activeTab === 'Matrícula'" style="display: none;">
                 @if(file_exists(resource_path('views/components/secoes/criancas/matricula/matricula.blade.php')))
                     @include('components.secoes.criancas.matricula.matricula', ['criancaId' => $crianca['id']])
                 @else
@@ -133,8 +133,8 @@
     <script>
         function menuCrianca() {
             return {
-                activeTab: 'Matricula',
-                tabs: ['Matricula', 'Responsáveis', 'Saúde', 'Autorização', 'Relatos'],
+                activeTab: 'Matrícula',
+                tabs: ['Matrícula', 'Responsáveis', 'Saúde', 'Autorização', 'Relatos'],
                 crianca: @json($crianca),
                 indicatorStyle: { left: 0, width: 0 },
                 tabsRef: [],

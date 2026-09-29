@@ -76,7 +76,8 @@
         @include('components.filtro.filtroStatusCriancas.filtroStatusCriancas')
 
         <a href="/crianca/cadastro" class="btnNovoCadastro">
-            + Novo cadastro
+            <img src="{{ asset('assets/plus.svg') }}" alt="Novo cadastro" class="iconeNovoCadastro" />
+            Novo cadastro
         </a>
     </div>
 

@@ -25,34 +25,22 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::prefix('crianca')->name('crianca.')->group(function () {
-    
+
     Route::get('/menu/{id}', function ($id) {
         $crianca = CriancaDataSeeder::getCriancaById($id);
 
-        if (!$crianca) {
-            abort(404, 'Criança não encontrada');
-        }
+        abort_if(!$crianca, 404, 'Criança não encontrada');
 
         return view('components.menu.menuSecoesCriancas.menuCrianca', compact('crianca'));
     })->name('menu');
 
-    Route::get('/{id}/saude', function ($id) {
-        return view('components.secoes.criancas.saude.saude', ['criancaId' => $id]);
-    })->name('saude');
+    $secoes = ['saude', 'responsaveis', 'autorizacoes', 'relatos', 'matricula'];
 
-    Route::get('/{id}/responsaveis', function ($id) {
-        return view('components.secoes.criancas.responsaveis.responsaveis', ['criancaId' => $id]);
-    })->name('responsaveis');
-
-    Route::get('/{id}/autorizacoes', function ($id) {
-        return view('components.secoes.criancas.autorizacoes.autorizacoes', ['criancaId' => $id]);
-    })->name('autorizacoes');
-
-    Route::get('/{id}/relatos', function ($id) {
-        return view('components.secoes.criancas.relatos.relatos', ['criancaId' => $id]);
-    })->name('relatos');
-
-    Route::get('/{id}/matricula', function ($id) {
-        return view('components.secoes.criancas.matricula.matricula', ['criancaId' => $id]);
-    })->name('matricula');
+    foreach ($secoes as $secao) {
+        Route::get("/{id}/{$secao}", function ($id) use ($secao) {
+            return view("components.secoes.criancas.{$secao}.{$secao}", [
+                'criancaId' => $id,
+            ]);
+        })->whereNumber('id')->name($secao);
+    }
 });

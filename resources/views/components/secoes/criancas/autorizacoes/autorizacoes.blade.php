@@ -91,7 +91,7 @@
                         aria-label="Excluir pessoa autorizada"
                     >
                         <img
-                            src="{{ asset('assets/trash 1 (2).png') }}"
+                            src="{{ asset('assets/trash.png') }}"
                             alt="Excluir"
                             class="iconeLixeira"
                         >

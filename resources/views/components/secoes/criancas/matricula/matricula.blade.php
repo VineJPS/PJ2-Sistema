@@ -27,7 +27,7 @@
             </template>
             <template x-if="!isEditingPessoais">
                 <button type="button" class="btnEditar" @click="isEditingPessoais = true">
-                    <img src="{{ asset('assets/edit (1) 1.png') }}" alt="Editar" class="iconeLapis" /> Editar
+                    <img src="{{ asset('assets/edit.png') }}" alt="Editar" class="iconeLapis" /> Editar
                 </button>
             </template>
         </div>
@@ -92,7 +92,7 @@
                 </template>
                 <template x-if="!isEditingBetel">
                     <button type="button" class="btnEditar" @click="isEditingBetel = true">
-                        <img src="{{ asset('assets/edit (1) 1.png') }}" alt="Editar" class="iconeLapis" /> Editar
+                        <img src="{{ asset('assets/edit.png') }}" alt="Editar" class="iconeLapis" /> Editar
                     </button>
                 </template>
             </div>
@@ -147,7 +147,7 @@
             </template>
             <template x-if="!isEditingEscolares">
                 <button type="button" class="btnEditar" @click="isEditingEscolares = true">
-                    <img src="{{ asset('assets/edit (1) 1.png') }}" alt="Editar" class="iconeLapis" /> Editar
+                    <img src="{{ asset('assets/edit.png') }}" alt="Editar" class="iconeLapis" /> Editar
                 </button>
             </template>
         </div>

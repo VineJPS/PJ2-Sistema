@@ -25,7 +25,7 @@
                 </template>
                 <template x-if="editingIndex !== index">
                     <button type="button" class="btnEditar" @click="iniciarEdicao(index)">
-                        <img src="{{ asset('assets/edit (1) 1.png') }}" alt="Editar" class="iconeLapis" /> Editar
+                        <img src="{{ asset('assets/edit.png') }}" alt="Editar" class="iconeLapis" /> Editar
                     </button>
                 </template>
             </div>

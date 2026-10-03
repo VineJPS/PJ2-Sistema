@@ -63,7 +63,7 @@
     <!-- Topo Ações -->
     <div class="topoAcoes">
         <div class="wrapperInputPesquisa">
-            <img src="{{ asset('assets/image 14.png') }}" alt="Buscar" class="iconeBusca" />
+            <img src="{{ asset('assets/search.png') }}" alt="Buscar" class="iconeBusca" />
             <input
                 type="text"
                 placeholder="Buscar nome..."

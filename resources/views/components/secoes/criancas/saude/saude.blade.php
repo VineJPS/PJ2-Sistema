@@ -190,7 +190,7 @@
             </template>
             <template x-if="!isEditing">
                 <button type="button" class="btnEditarOutline" @click="isEditing = true">
-                    <img src="{{ asset('assets/edit (1) 1.png') }}" alt="Editar" class="iconeLapis"> Editar ficha
+                    <img src="{{ asset('assets/edit.png') }}" alt="Editar" class="iconeLapis"> Editar ficha
                 </button>
             </template>
         </div>

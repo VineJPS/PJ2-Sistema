@@ -186,9 +186,6 @@ class CriancaDataSeeder extends Seeder
         ];
     }
 
-    /**
-     * Informações que são diferentes para cada criança.
-     */
     private static function getCriancasBasicas(): array
     {
         return [
@@ -230,7 +227,7 @@ class CriancaDataSeeder extends Seeder
             ],
             [
                 'id' => 7,
-                'nome' => 'Michelle Soares',
+                'nome' => 'Michelle Soares',     
                 'idade' => 6,
                 'status' => 'Ativo',
             ],
@@ -249,9 +246,6 @@ class CriancaDataSeeder extends Seeder
         ];
     }
 
-    /**
-     * Junta os dados padrão com os dados de cada criança.
-     */
     private static function getCriancasData(): array
     {
         $criancasBasicas = self::getCriancasBasicas();
@@ -262,17 +256,11 @@ class CriancaDataSeeder extends Seeder
         }, $criancasBasicas);
     }
 
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         // Método pronto para salvar no banco futuramente, se necessário.
     }
 
-    /**
-     * Retorna os dados de uma criança específica pelo ID.
-     */
     public static function getCriancaById($id): ?array
     {
         foreach (self::getCriancasData() as $crianca) {
@@ -284,9 +272,6 @@ class CriancaDataSeeder extends Seeder
         return null;
     }
 
-    /**
-     * Retorna todas as crianças.
-     */
     public static function getTodosCriancas(): array
     {
         return self::getCriancasData();

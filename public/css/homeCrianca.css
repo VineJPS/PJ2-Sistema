@@ -22,10 +22,11 @@
   margin-bottom: 2rem;
 }
 
+/* Barra de pesquisa: tem no máximo 850px, mas encolhe em telas menores */
 .wrapperInputPesquisa {
   position: relative;
-  flex: 1;
-  max-width: 580px;
+  flex: 0 1 850px;
+  min-width: 0;
   display: flex;
   align-items: center;
 }
@@ -80,12 +81,14 @@
   transition: all 0.3s ease;
 }
 
-/* Seção de Filtro */
 .secaoFiltro {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  margin-left: 2rem;
+  margin-right: auto; 
 }
 
 .btnFiltro {
@@ -319,6 +322,12 @@
 
   .wrapperInputPesquisa {
     max-width: 100%;
+    flex: none;
+  }
+
+  .secaoFiltro {
+    margin: 0;
+    justify-content: space-between;
   }
 
   .gridCriancas {

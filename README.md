@@ -39,4 +39,4 @@
 Crie uma nova Branch (Atualizada) a partir da main com os prefixos "feature" criação de algo novo ou "fix" correção de bugs. EX feature/adicao-zoom || fix/correcao-zoom
 
 ### Calanguim 🦎
-<img src="https://media.tenor.com/Jd0Kj1u3vY0AAAAi/hoppers-tom-lizard-lagartija-dance.gif" alt="Hoppers Tom GIF" width="400" />
+![Liza GIF](public/img/liza.gif)

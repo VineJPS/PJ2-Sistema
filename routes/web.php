@@ -19,6 +19,15 @@ Route::middleware('auth')->group(function () {
         return view('components.dashboard');
     })->name('dashboard');
 
+    Route::prefix('admin/usuarios')->name('admin.usuarios.')->group(function () {
+        Route::get('/', [UsuarioController::class, 'listar'])->name('index');
+        Route::post('/convidar', [UsuarioController::class, 'salvar'])->name('convidar');
+        Route::put('/{id}/remover-admin', [UsuarioController::class, 'removerAdmin'])->name('removerAdmin');
+        Route::put('/{id}/desativar', [UsuarioController::class, 'desativar'])->name('desativar');
+        Route::post('/{id}/redefinir-senha', [UsuarioController::class, 'redefinirSenha'])->name('redefinirSenha');
+        Route::delete('/{id}', [UsuarioController::class, 'deletar'])->name('destroy');
+    });
+
     Route::post('/logout', [AutenticacaoController::class, 'sair'])->name('logout');
 
     Route::get('/meu-perfil', [AutenticacaoController::class, 'usuarioAutenticado'])->name('profile');

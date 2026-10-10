@@ -22,6 +22,8 @@ class Usuario extends Authenticatable
         'data_nascimento',
         'FK_id_nivel',
         'nivel_id',
+        'role',
+        'status',
         'senha',
     ];
 
@@ -50,7 +52,7 @@ class Usuario extends Authenticatable
 
     public function getNameAttribute(): ?string
     {
-        return $this->nome;
+        return $this->nome ?? ($this->email ? explode('@', $this->email)[0] : 'Usuário');
     }
 
     public function getPhoneAttribute(): ?string
@@ -63,8 +65,13 @@ class Usuario extends Authenticatable
         return $this->attributes['telefone'] ?? $this->attributes['phone'] ?? null;
     }
 
+    public function getRoleAttribute(): string
+    {
+        return $this->attributes['role'] ?? ($this->nivel && strtolower($this->nivel->nome) === 'administrador' ? 'administrador' : 'colaborador');
+    }
+
     public function getStatusAttribute(): string
     {
-        return 'Ativa';
+        return $this->attributes['status'] ?? 'ativo';
     }
 }

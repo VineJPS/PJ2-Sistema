@@ -2,9 +2,16 @@
 
 namespace App\Services;
 
+use App\Mail\ConviteUsuarioMail;
+use App\Mail\RedefinirSenhaMail;
+use App\Models\Nivel;
 use App\Models\Usuario;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class UsuarioService
 {
@@ -13,9 +20,115 @@ class UsuarioService
         return Usuario::with('nivel')->get();
     }
 
+    public function listarPaginado(?string $search = null, ?string $tab = null, int $perPage = 10): LengthAwarePaginator
+    {
+        $query = Usuario::with('nivel');
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nome', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($tab === 'administradores') {
+            $query->where(function ($q) {
+                $q->where('role', 'administrador')
+                  ->orWhereHas('nivel', fn ($n) => $n->whereRaw('LOWER(nome) = ?', ['administrador']));
+            });
+        } elseif ($tab === 'colaboradores') {
+            $query->where(function ($q) {
+                $q->where('role', 'colaborador')
+                  ->orWhereHas('nivel', fn ($n) => $n->whereRaw('LOWER(nome) = ?', ['colaborador']));
+            });
+        }
+
+        return $query->orderBy('id', 'desc')->paginate($perPage)->withQueryString();
+    }
+
     public function buscarPorId(int $id): Usuario
     {
         return Usuario::with('nivel')->findOrFail($id);
+    }
+
+    public function convidar(string $email, string $role = 'colaborador', ?string $nome = null): array
+    {
+        $roleNormalized = strtolower($role) === 'administrador' ? 'administrador' : 'colaborador';
+        $nivelNome = $roleNormalized === 'administrador' ? 'Administrador' : 'Colaborador';
+
+        $nivel = Nivel::firstOrCreate(
+            ['nome' => $nivelNome],
+            ['descricao' => $roleNormalized === 'administrador' ? 'Acesso total ao sistema' : 'Acesso básico ao painel']
+        );
+
+        $tempPassword = Str::random(10);
+        $nomeFinal = $nome ?: ucfirst(explode('@', $email)[0]);
+
+        $usuario = Usuario::create([
+            'nome' => $nomeFinal,
+            'email' => $email,
+            'role' => $roleNormalized,
+            'status' => 'pendente',
+            'FK_id_nivel' => $nivel->id,
+            'senha' => Hash::make($tempPassword),
+        ]);
+
+        try {
+            Mail::to($usuario->email)->send(new ConviteUsuarioMail($tempPassword, $usuario->nome));
+        } catch (\Throwable $e) {
+            Log::error('Erro ao enviar e-mail de convite: ' . $e->getMessage());
+        }
+
+        return [
+            'usuario' => $usuario,
+            'tempPassword' => $tempPassword,
+        ];
+    }
+
+    public function removerAdmin(int $id): Usuario
+    {
+        $usuario = Usuario::findOrFail($id);
+
+        $nivelColaborador = Nivel::firstOrCreate(
+            ['nome' => 'Colaborador'],
+            ['descricao' => 'Acesso básico ao painel']
+        );
+
+        $usuario->update([
+            'role' => 'colaborador',
+            'FK_id_nivel' => $nivelColaborador->id,
+        ]);
+
+        return $usuario;
+    }
+
+    public function desativar(int $id): Usuario
+    {
+        $usuario = Usuario::findOrFail($id);
+        $usuario->update(['status' => 'inativo']);
+
+        return $usuario;
+    }
+
+    public function redefinirSenha(int $id): array
+    {
+        $usuario = Usuario::findOrFail($id);
+        $novaSenha = Str::random(10);
+
+        $usuario->update([
+            'senha' => Hash::make($novaSenha),
+        ]);
+
+        try {
+            Mail::to($usuario->email)->send(new RedefinirSenhaMail($novaSenha, $usuario->nome));
+        } catch (\Throwable $e) {
+            Log::error('Erro ao enviar e-mail de redefinição de senha: ' . $e->getMessage());
+        }
+
+        return [
+            'usuario' => $usuario,
+            'novaSenha' => $novaSenha,
+        ];
     }
 
     public function criar(array $dados): Usuario
@@ -44,6 +157,6 @@ class UsuarioService
     {
         $usuario = Usuario::findOrFail($id);
 
-        return $usuario->delete();
+        return (bool) $usuario->delete();
     }
 }

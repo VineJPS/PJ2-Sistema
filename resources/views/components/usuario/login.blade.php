@@ -25,29 +25,51 @@
         </p>
 
         <!-- Formulário -->
-        <form class="w-full max-w-[450px] flex flex-col gap-5">
+        <form method="POST" action="{{ route('login') }}" class="w-full max-w-[450px] flex flex-col gap-5">
+            @csrf
+
+            <!-- Feedback de Erro Geral ou E-mail -->
+            @error('email')
+                <div class="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl text-center">
+                    {{ $message }}
+                </div>
+            @enderror
+
             <!-- Campo E-mail -->
-            <div class="w-full h-[70px] bg-[#fafbfd] rounded-[15px] border-[1.5px] border-solid border-[#e9ecf3] px-6 flex items-center focus-within:border-[#2f6fe0] transition-colors">
-                <input 
-                    type="email" 
-                    placeholder="Digite seu e-mail" 
-                    class="w-full bg-transparent outline-none text-[#1c2536] placeholder-[#acacad] text-lg md:text-xl font-normal"
-                />
+            <div class="flex flex-col gap-1">
+                <div class="w-full h-[70px] bg-[#fafbfd] rounded-[15px] border-[1.5px] border-solid @error('email') border-red-400 @else border-[#e9ecf3] @enderror px-6 flex items-center focus-within:border-[#2f6fe0] transition-colors">
+                    <input 
+                        type="email" 
+                        name="email"
+                        value="{{ old('email') }}"
+                        required
+                        autofocus
+                        placeholder="Digite seu e-mail" 
+                        class="w-full bg-transparent outline-none text-[#1c2536] placeholder-[#acacad] text-lg md:text-xl font-normal"
+                    />
+                </div>
             </div>
 
             <!-- Campo Senha -->
-            <div class="w-full h-[70px] bg-[#fafbfd] rounded-[15px] border-[1.5px] border-solid border-[#e9ecf3] px-6 flex items-center focus-within:border-[#2f6fe0] transition-colors">
-                <input 
-                    type="password" 
-                    placeholder="Digite sua senha" 
-                    class="w-full bg-transparent outline-none text-[#1c2536] placeholder-[#acacad] text-lg md:text-xl font-normal"
-                />
+            <div class="flex flex-col gap-1">
+                <div class="w-full h-[70px] bg-[#fafbfd] rounded-[15px] border-[1.5px] border-solid @error('password') border-red-400 @else border-[#e9ecf3] @enderror px-6 flex items-center focus-within:border-[#2f6fe0] transition-colors">
+                    <input 
+                        type="password" 
+                        name="password"
+                        required
+                        placeholder="Digite sua senha" 
+                        class="w-full bg-transparent outline-none text-[#1c2536] placeholder-[#acacad] text-lg md:text-xl font-normal"
+                    />
+                </div>
+                @error('password')
+                    <span class="text-xs text-red-500 mt-1 pl-2">{{ $message }}</span>
+                @enderror
             </div>
 
             <!-- Botão Entrar -->
             <button 
                 type="submit" 
-                class="w-full h-[70px] rounded-[15px] bg-gradient-to-tr from-[#4df8f4] via-[#4d8bf0] to-[#1c4ee8] text-white font-bold text-xl tracking-tight shadow-md hover:opacity-95 transition-opacity flex items-center justify-center mt-2"
+                class="w-full h-[70px] rounded-[15px] bg-gradient-to-tr from-[#4df8f4] via-[#4d8bf0] to-[#1c4ee8] text-white font-bold text-xl tracking-tight shadow-md hover:opacity-95 transition-opacity flex items-center justify-center mt-2 cursor-pointer"
                 style="background-image: linear-gradient(130deg, rgba(77,139,240,1) 0%, rgba(28,78,168,1) 100%);"
             >
                 Entrar

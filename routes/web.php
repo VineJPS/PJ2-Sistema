@@ -5,27 +5,24 @@ use App\Http\Controllers\AutenticacaoController;
 use Database\Seeders\CriancaDataSeeder;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('components.secoes.criancas.home.home');
-})->name('home');
+// Rotas públicas (Acesso para visitantes / login)
+Route::get('/login', [AutenticacaoController::class, 'mostrarLogin'])->name('login');
+Route::post('/login', [AutenticacaoController::class, 'entrar'])->name('login.post');
 
-Route::get('/a', function () {
-    return view('components.usuario.login');
-})->name('home');
+// Rotas privadas (Protegidas pelo middleware de autenticação)
+Route::middleware('auth')->group(function () {
+    Route::get('/', function () {
+        return view('components.secoes.criancas.home.home');
+    })->name('home');
 
-Route::get('/b', function () {
-    return view('components.dashboard');
-})->name('home');
+    Route::get('/dashboard', function () {
+        return view('components.dashboard');
+    })->name('dashboard');
 
-Route::get('/c', function () {
-    return view('components.usuario.perfil');
-})->name('home');
-
-Route::post('/login', [AutenticacaoController::class, 'entrar'])->name('login');
-
-Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AutenticacaoController::class, 'sair'])->name('logout');
+
     Route::get('/meu-perfil', [AutenticacaoController::class, 'usuarioAutenticado'])->name('profile');
+    Route::put('/meu-perfil', [AutenticacaoController::class, 'atualizarPerfil'])->name('profile.update');
 
     Route::prefix('usuario')->name('usuario.')->group(function () {
         Route::get('/', [UsuarioController::class, 'listar'])->name('index');
@@ -34,26 +31,24 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{id}', [UsuarioController::class, 'atualizar'])->name('update');
         Route::delete('/{id}', [UsuarioController::class, 'deletar'])->name('destroy');
     });
-    
-});
 
-Route::prefix('crianca')->name('crianca.')->group(function () {
+    Route::prefix('crianca')->name('crianca.')->group(function () {
+        Route::get('/menu/{id}', function ($id) {
+            $crianca = CriancaDataSeeder::getCriancaById($id);
 
-    Route::get('/menu/{id}', function ($id) {
-        $crianca = CriancaDataSeeder::getCriancaById($id);
+            abort_if(!$crianca, 404, 'Criança não encontrada');
 
-        abort_if(!$crianca, 404, 'Criança não encontrada');
+            return view('components.menu.menuSecoesCriancas.menuCrianca', compact('crianca'));
+        })->name('menu');
 
-        return view('components.menu.menuSecoesCriancas.menuCrianca', compact('crianca'));
-    })->name('menu');
+        $secoes = ['saude', 'responsaveis', 'autorizacoes', 'relatos', 'matricula'];
 
-    $secoes = ['saude', 'responsaveis', 'autorizacoes', 'relatos', 'matricula'];
-
-    foreach ($secoes as $secao) {
-        Route::get("/{id}/{$secao}", function ($id) use ($secao) {
-            return view("components.secoes.criancas.{$secao}.{$secao}", [
-                'criancaId' => $id,
-            ]);
-        })->whereNumber('id')->name($secao);
-    }
+        foreach ($secoes as $secao) {
+            Route::get("/{id}/{$secao}", function ($id) use ($secao) {
+                return view("components.secoes.criancas.{$secao}.{$secao}", [
+                    'criancaId' => $id,
+                ]);
+            })->whereNumber('id')->name($secao);
+        }
+    });
 });

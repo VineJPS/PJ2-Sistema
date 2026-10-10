@@ -4,18 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class AutenticacaoController extends Controller
 {
-    public function entrar(LoginRequest $request): JsonResponse
+    public function mostrarLogin(): View|RedirectResponse
     {
-        // Tenta autenticar mapeando 'senha' para a coluna configurada no Model
+        if (Auth::check()) {
+            return redirect()->route('profile');
+        }
+
+        return view('components.usuario.login');
+    }
+
+    public function entrar(LoginRequest $request): JsonResponse|RedirectResponse
+    {
         $credenciais = [
             'email' => $request->email,
-            'password' => $request->senha, // O Laravel mapeia 'password' interno para o getAuthPasswordName()
+            'password' => $request->input('password', $request->input('senha')),
         ];
 
         if (!Auth::attempt($credenciais, $request->boolean('lembrar'))) {
@@ -27,13 +40,17 @@ class AutenticacaoController extends Controller
         // Regenera a sessão para prevenir ataques de Fixação de Sessão (Session Fixation)
         $request->session()->regenerate();
 
-        return response()->json([
-            'mensagem' => 'Login realizado com sucesso',
-            'usuario' => Auth::user()->load('nivel'),
-        ]);
+        if ($request->wantsJson()) {
+            return response()->json([
+                'mensagem' => 'Login realizado com sucesso',
+                'usuario' => Auth::user()->load('nivel'),
+            ]);
+        }
+
+        return redirect()->intended(route('profile'));
     }
 
-    public function sair(Request $request): JsonResponse
+    public function sair(Request $request): JsonResponse|RedirectResponse
     {
         // Desloga o usuário do guard web
         Auth::guard('web')->logout();
@@ -42,11 +59,63 @@ class AutenticacaoController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json(['mensagem' => 'Logout realizado com sucesso']);
+        if ($request->wantsJson()) {
+            return response()->json(['mensagem' => 'Logout realizado com sucesso']);
+        }
+
+        return redirect()->route('login');
     }
 
-    public function usuarioAutenticado(): JsonResponse
+    public function usuarioAutenticado(Request $request): JsonResponse|View
     {
-        return response()->json(Auth::user()->load('nivel'));
+        $usuario = Auth::user()->load('nivel');
+
+        if ($request->wantsJson()) {
+            return response()->json($usuario);
+        }
+
+        return view('components.usuario.perfil', compact('usuario'));
+    }
+
+    public function atualizarPerfil(Request $request): JsonResponse|RedirectResponse
+    {
+        /** @var \App\Models\Usuario $usuario */
+        $usuario = Auth::user();
+
+        $dadosValidados = $request->validate([
+            'nome' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('usuarios', 'email')->ignore($usuario->id)],
+            'cpf' => ['nullable', 'string', 'max:20', Rule::unique('usuarios', 'cpf')->ignore($usuario->id)],
+            'telefone' => ['nullable', 'string', 'max:20'],
+            'senha' => ['nullable', 'string', 'min:6'],
+        ], [
+            'nome.required' => 'O campo nome completo é obrigatório.',
+            'email.required' => 'O campo e-mail é obrigatório.',
+            'email.email' => 'Informe um endereço de e-mail válido.',
+            'email.unique' => 'Este e-mail já está em uso por outro usuário.',
+            'cpf.unique' => 'Este CPF já está cadastrado no sistema.',
+            'senha.min' => 'A senha deve conter no mínimo 6 caracteres.',
+        ]);
+
+        if (!empty($dadosValidados['senha'])) {
+            $dadosValidados['senha'] = Hash::make($dadosValidados['senha']);
+        } else {
+            unset($dadosValidados['senha']);
+        }
+
+        if (!Schema::hasColumn('usuarios', 'telefone')) {
+            unset($dadosValidados['telefone']);
+        }
+
+        $usuario->update($dadosValidados);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'mensagem' => 'Perfil atualizado com sucesso',
+                'usuario' => $usuario->fresh()->load('nivel'),
+            ]);
+        }
+
+        return redirect()->route('profile')->with('sucesso', 'Perfil atualizado com sucesso!');
     }
 }

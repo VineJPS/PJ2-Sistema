@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('nome');
             $table->string('cpf');
             $table->string('email')->unique();
-            $table->date('data_nascimento');
+            $table->string('telefone', 20)->nullable();
+            $table->date('data_nascimento')->nullable();
             $table->foreignId('FK_id_nivel')->constrained('niveis');
             $table->timestamp('email_verificado_em')->nullable();
             $table->string('senha');

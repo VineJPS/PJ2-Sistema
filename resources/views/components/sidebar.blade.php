@@ -5,7 +5,7 @@
 
         <nav class="flex flex-col gap-2">
             <!-- Item Ativo: Início -->
-            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#265ae1] text-white font-medium shadow-sm transition-all">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#265ae1] text-white font-medium shadow-sm transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 Início
             </a>
@@ -37,11 +37,11 @@
     </div>
 
     <!-- Área do Perfil com Dropdown (Controlado por Alpine.js) -->
-    <div class="relative" x-data="{ open: true }"> <!-- Mude para open: false por padrão, deixei true para ver aberto na pré-visualização -->
+    <div class="relative" x-data="{ open: false }">
         
         <!-- Menu Flutuante (Popup Branco) -->
-        <div x-show="open" @click.away="open = false" class="absolute bottom-full left-0 w-full mb-3 bg-white rounded-2xl shadow-xl overflow-hidden text-slate-800 border border-slate-100 py-1">
-            <a href="#" class="flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50 transition-colors text-sm font-medium text-slate-700">
+        <div x-show="open" @click.away="open = false" class="absolute bottom-full left-0 w-full mb-3 bg-white rounded-2xl shadow-xl overflow-hidden text-slate-800 border border-slate-100 py-1" style="display: none;">
+            <a href="{{ route('profile') }}" class="flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50 transition-colors text-sm font-medium text-slate-700">
                 <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
@@ -50,9 +50,9 @@
             
             <div class="h-[1px] bg-slate-100 mx-4"></div>
 
-            <form method="POST" action="#">
+            <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-red-50 transition-colors text-sm font-medium text-red-600">
+                <button type="submit" class="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-red-50 transition-colors text-sm font-medium text-red-600 cursor-pointer">
                     <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                     </svg>
@@ -62,14 +62,22 @@
         </div>
 
         <!-- Botão Rodapé da Sidebar (Gatilho do Menu) -->
-        <button @click="open = !open" class="w-full flex items-center justify-between pt-4 mt-2 border-t border-blue-600/50 bg-[#1746b1] text-left focus:outline-none group">
+        <button @click="open = !open" class="w-full flex items-center justify-between pt-4 mt-2 border-t border-blue-600/50 bg-[#1746b1] text-left focus:outline-none group cursor-pointer">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full bg-blue-500/50 flex items-center justify-center font-bold text-sm text-white">
-                    MS
+                    @if(auth()->check() && (auth()->user()->name || auth()->user()->nome))
+                        {{ strtoupper(substr(auth()->user()->name ?? auth()->user()->nome, 0, 2)) }}
+                    @else
+                        U
+                    @endif
                 </div>
                 <div>
-                    <p class="text-sm font-semibold leading-tight text-white">Marcus Souza</p>
-                    <p class="text-xs text-blue-200">Administrador</p>
+                    <p class="text-sm font-semibold leading-tight text-white">
+                        {{ auth()->check() ? (auth()->user()->name ?? auth()->user()->nome) : 'Usuário' }}
+                    </p>
+                    <p class="text-xs text-blue-200">
+                        {{ auth()->check() ? (auth()->user()->nivel->nome ?? 'Usuário') : 'Convidado' }}
+                    </p>
                 </div>
             </div>
             <!-- Seta rotaciona baseada no estado 'open' -->

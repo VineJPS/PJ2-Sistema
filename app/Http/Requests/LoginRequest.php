@@ -11,11 +11,29 @@ class LoginRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('password') && !$this->has('senha')) {
+            $this->merge(['senha' => $this->password]);
+        } elseif ($this->has('senha') && !$this->has('password')) {
+            $this->merge(['password' => $this->senha]);
+        }
+    }
+
     public function rules(): array
     {
         return [
             'email' => ['required', 'string', 'email'],
-            'senha' => ['required', 'string'],
+            'password' => ['required', 'string'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'O campo e-mail é obrigatório.',
+            'email.email' => 'Informe um e-mail válido.',
+            'password.required' => 'O campo senha é obrigatório.',
         ];
     }
 }

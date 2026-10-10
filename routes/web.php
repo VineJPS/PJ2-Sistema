@@ -9,6 +9,18 @@ Route::get('/', function () {
     return view('components.secoes.criancas.home.home');
 })->name('home');
 
+Route::get('/a', function () {
+    return view('components.usuario.login');
+})->name('home');
+
+Route::get('/b', function () {
+    return view('components.dashboard');
+})->name('home');
+
+Route::get('/c', function () {
+    return view('components.usuario.perfil');
+})->name('home');
+
 Route::post('/login', [AutenticacaoController::class, 'entrar'])->name('login');
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -22,6 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{id}', [UsuarioController::class, 'atualizar'])->name('update');
         Route::delete('/{id}', [UsuarioController::class, 'deletar'])->name('destroy');
     });
+    
 });
 
 Route::prefix('crianca')->name('crianca.')->group(function () {

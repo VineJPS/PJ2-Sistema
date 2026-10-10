@@ -1,0 +1,355 @@
+/* ==========================================================
+   matriculaCrianca.css
+   ========================================================== */
+
+:root {
+  --azul-principal: #0266b3;
+  --azul-label: #0266b3;
+  --cinza-borda: #e5e7eb;
+  --cinza-divisoria: #e5e7eb;
+  --texto-escuro: #111827;
+  --texto-suave: #6b7280;
+}
+
+.pageContainer {
+  width: 100%;
+  background-color: #f9fafb;
+  padding: 24px 32px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  box-sizing: border-box;
+  min-height: 100vh;
+}
+
+/* ---------- Header com Foto, Nome e Badge ---------- */
+.headerPerfil {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--cinza-borda);
+}
+
+.infoPrincipal {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatarCircle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--cinza-borda);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarIcon {
+  width: 28px;
+  height: 28px;
+  opacity: 0.5;
+}
+
+.textoPerfil {
+  display: flex;
+  flex-direction: column;
+}
+
+.nomeCrianca {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--texto-escuro);
+  margin: 0;
+}
+
+.detalhesEntrada {
+  font-size: 13px;
+  color: var(--texto-suave);
+  margin: 4px 0 0 0;
+}
+
+/* ---------- Badges de status ---------- */
+.badgeStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.badgeInativo {
+  background-color: #f3f4f6;
+  border: 1px solid #6b7280;
+}
+
+.badgeAtivo {
+  background-color: #dcfce7;
+  border: 1px solid #166534;
+}
+
+.badgeAlergico {
+  background-color: #fee2e2;
+  border: 1px solid #ff7a00;
+}
+
+.pontoStatus {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* ---------- Abas de navegação ---------- */
+.tabsWrapper {
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid var(--cinza-borda);
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.tabsContainer {
+  display: flex;
+  gap: 28px;
+  overflow-x: auto;
+  flex: 1;
+}
+
+.tabItem {
+  background: none;
+  border: none;
+  padding: 12px 0 10px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--texto-suave);
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.tabItem:hover {
+  color: var(--texto-escuro);
+}
+
+.tabAtiva {
+  color: var(--texto-escuro);
+  font-weight: 600;
+}
+
+.tabAtiva::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--texto-escuro);
+  border-radius: 2px 2px 0 0;
+}
+
+.btnSetaAba {
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #4b5563;
+  cursor: pointer;
+  margin-left: 16px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btnSetaAba:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+/* ---------- Cards ---------- */
+.cardInfo {
+  border: 1px solid var(--cinza-borda);
+  border-radius: 14px;
+  margin-bottom: 24px;
+  overflow: hidden;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 24px 14px 24px;
+}
+
+.cardTitulo {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--azul-principal);
+  margin: 0 0 2px 0;
+}
+
+.cardSubtitulo {
+  font-size: 14px;
+  color: var(--texto-suave);
+  margin: 0;
+}
+
+/* ---------- Botão Editar ---------- */
+.btnEditar {
+  background: none;
+  border: none;
+  color: var(--azul-principal);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.btnEditar:hover {
+  background-color: #f0f7ff;
+}
+
+.iconeLapis {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+
+/* ---------- Grids de campos ---------- */
+.gridTrisecao {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--cinza-divisoria);
+  border-bottom: 1px solid var(--cinza-divisoria);
+}
+
+.gridTrisecaoSemBordaInferior {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--cinza-divisoria);
+}
+
+.campoGrupo {
+  padding: 16px 24px;
+}
+
+.campoGrupo:not(:last-child) {
+  border-right: 1px solid var(--cinza-divisoria);
+}
+
+.campoLinhaInteira {
+  padding: 16px 24px;
+  border-top: 1px solid var(--cinza-divisoria);
+}
+
+/* ---------- Labels (azuis) e valores ---------- */
+/* Seletor mais específico + !important para vencer CSS global (label { color: ... }) */
+.cardInfo .labelCampo,
+.cardInfo label.labelCampo {
+  font-size: 13px;
+  color: var(--azul-label) !important;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.cardInfo .valorCampo {
+  font-size: 15px;
+  color: var(--texto-escuro);
+  font-weight: 400;
+  margin: 0;
+}
+
+/* ---------- Inputs no modo edição ---------- */
+.inputCampo {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--azul-principal);
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--texto-escuro);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.inputCampo:focus {
+  box-shadow: 0 0 0 3px rgba(2, 102, 179, 0.15);
+}
+
+.acoesEdicao {
+  display: flex;
+  gap: 8px;
+}
+
+.btnSalvar {
+  background-color: var(--azul-principal);
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnSalvar:hover {
+  filter: brightness(1.1);
+}
+
+.btnCancelar {
+  background-color: transparent;
+  color: var(--texto-suave);
+  border: 1px solid #d1d5db;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btnCancelar:hover {
+  background-color: #f3f4f6;
+}
+
+/* ---------- Placeholder de abas vazias ---------- */
+.placeholderAba {
+  padding: 60px 40px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 14px;
+  border: 1px dashed var(--cinza-borda);
+  border-radius: 12px;
+  background-color: #fafafa;
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 640px) {
+  .pageContainer {
+    padding: 16px;
+  }
+
+  .gridTrisecao,
+  .gridTrisecaoSemBordaInferior {
+    grid-template-columns: 1fr;
+  }
+
+  .campoGrupo:not(:last-child) {
+    border-right: none;
+    border-bottom: 1px solid var(--cinza-divisoria);
+  }
+}

@@ -47,7 +47,7 @@ class AutenticacaoController extends Controller
             ]);
         }
 
-        return redirect()->intended(route('profile'));
+        return redirect()->intended(route('dashboard'));
     }
 
     public function sair(Request $request): JsonResponse|RedirectResponse

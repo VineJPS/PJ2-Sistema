@@ -37,6 +37,15 @@ class AutenticacaoController extends Controller
             ]);
         }
 
+        if (Auth::user()->status === 'inativo') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            throw ValidationException::withMessages([
+                'email' => ['Sua conta está desativada. Entre em contato com um administrador para reativação.'],
+            ]);
+        }
+
         // Regenera a sessão para prevenir ataques de Fixação de Sessão (Session Fixation)
         $request->session()->regenerate();
 

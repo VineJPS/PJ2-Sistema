@@ -85,6 +85,23 @@ class UsuarioService
         ];
     }
 
+    public function tornarAdmin(int $id): Usuario
+    {
+        $usuario = Usuario::findOrFail($id);
+
+        $nivelAdmin = Nivel::firstOrCreate(
+            ['nome' => 'Administrador'],
+            ['descricao' => 'Acesso total ao sistema']
+        );
+
+        $usuario->update([
+            'role' => 'administrador',
+            'FK_id_nivel' => $nivelAdmin->id,
+        ]);
+
+        return $usuario->fresh(['nivel']);
+    }
+
     public function removerAdmin(int $id): Usuario
     {
         $usuario = Usuario::findOrFail($id);
@@ -99,7 +116,7 @@ class UsuarioService
             'FK_id_nivel' => $nivelColaborador->id,
         ]);
 
-        return $usuario;
+        return $usuario->fresh(['nivel']);
     }
 
     public function desativar(int $id): Usuario
@@ -107,7 +124,15 @@ class UsuarioService
         $usuario = Usuario::findOrFail($id);
         $usuario->update(['status' => 'inativo']);
 
-        return $usuario;
+        return $usuario->fresh(['nivel']);
+    }
+
+    public function reativar(int $id): Usuario
+    {
+        $usuario = Usuario::findOrFail($id);
+        $usuario->update(['status' => 'ativo']);
+
+        return $usuario->fresh(['nivel']);
     }
 
     public function redefinirSenha(int $id): array
@@ -148,9 +173,20 @@ class UsuarioService
             unset($dados['senha']);
         }
 
+        if (isset($dados['role'])) {
+            $roleNormalized = strtolower($dados['role']) === 'administrador' ? 'administrador' : 'colaborador';
+            $nivelNome = $roleNormalized === 'administrador' ? 'Administrador' : 'Colaborador';
+            $nivel = Nivel::firstOrCreate(
+                ['nome' => $nivelNome],
+                ['descricao' => $roleNormalized === 'administrador' ? 'Acesso total ao sistema' : 'Acesso básico ao painel']
+            );
+            $dados['role'] = $roleNormalized;
+            $dados['FK_id_nivel'] = $nivel->id;
+        }
+
         $usuario->update($dados);
 
-        return $usuario;
+        return $usuario->fresh(['nivel']);
     }
 
     public function deletar(int $id): bool

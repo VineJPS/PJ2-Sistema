@@ -32,6 +32,13 @@ class Usuario extends Authenticatable
         'remember_token',
     ];
 
+    protected $appends = [
+        'name',
+        'phone',
+        'role',
+        'status',
+    ];
+
     protected function casts(): array
     {
         return [

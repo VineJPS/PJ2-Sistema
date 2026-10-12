@@ -22,8 +22,11 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin/usuarios')->name('admin.usuarios.')->group(function () {
         Route::get('/', [UsuarioController::class, 'listar'])->name('index');
         Route::post('/convidar', [UsuarioController::class, 'salvar'])->name('convidar');
+        Route::put('/{id}', [UsuarioController::class, 'atualizar'])->name('update');
+        Route::put('/{id}/tornar-admin', [UsuarioController::class, 'tornarAdmin'])->name('tornarAdmin');
         Route::put('/{id}/remover-admin', [UsuarioController::class, 'removerAdmin'])->name('removerAdmin');
         Route::put('/{id}/desativar', [UsuarioController::class, 'desativar'])->name('desativar');
+        Route::put('/{id}/reativar', [UsuarioController::class, 'reativar'])->name('reativar');
         Route::post('/{id}/redefinir-senha', [UsuarioController::class, 'redefinirSenha'])->name('redefinirSenha');
         Route::delete('/{id}', [UsuarioController::class, 'deletar'])->name('destroy');
     });

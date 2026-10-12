@@ -62,6 +62,20 @@ class UsuarioController extends Controller
         return redirect()->route('admin.usuarios.index')->with('success', 'Convite enviado com sucesso para ' . $resultado['usuario']->email . '!');
     }
 
+    public function tornarAdmin(Request $request, int $id): JsonResponse|RedirectResponse
+    {
+        $usuario = $this->usuarioService->tornarAdmin($id);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'mensagem' => 'Usuário promovido a administrador com sucesso',
+                'usuario' => $usuario,
+            ]);
+        }
+
+        return redirect()->route('admin.usuarios.index')->with('success', 'Usuário promovido a administrador com sucesso!');
+    }
+
     public function removerAdmin(Request $request, int $id): JsonResponse|RedirectResponse
     {
         $usuario = $this->usuarioService->removerAdmin($id);
@@ -88,6 +102,20 @@ class UsuarioController extends Controller
         }
 
         return redirect()->route('admin.usuarios.index')->with('success', 'Usuário desativado com sucesso!');
+    }
+
+    public function reativar(Request $request, int $id): JsonResponse|RedirectResponse
+    {
+        $usuario = $this->usuarioService->reativar($id);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'mensagem' => 'Usuário reativado com sucesso',
+                'usuario' => $usuario,
+            ]);
+        }
+
+        return redirect()->route('admin.usuarios.index')->with('success', 'Usuário reativado com sucesso!');
     }
 
     public function redefinirSenha(Request $request, int $id): JsonResponse|RedirectResponse

@@ -8,7 +8,7 @@
 
 ## Equipe
 * **Vinicius** (VineJPS)
-* **Renan** (RenanHB1)
+* **Leticia** (LeticiaCoelhoF)
 * **Rebeca** (Rebeca123558)
 * **Sthefani** (Sthee2004)
 
@@ -37,3 +37,6 @@
 
 ## Abrindo PR
 Crie uma nova Branch (Atualizada) a partir da main com os prefixos "feature" criação de algo novo ou "fix" correção de bugs. EX feature/adicao-zoom || fix/correcao-zoom
+
+### Calanguim 🦎
+![Liza GIF](public/img/liza.gif)

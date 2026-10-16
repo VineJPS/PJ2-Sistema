@@ -18,14 +18,25 @@ class Usuario extends Authenticatable
         'nome',
         'cpf',
         'email',
+        'telefone',
         'data_nascimento',
+        'FK_id_nivel',
         'nivel_id',
+        'role',
+        'status',
         'senha',
     ];
 
     protected $hidden = [
         'senha',
         'remember_token',
+    ];
+
+    protected $appends = [
+        'name',
+        'phone',
+        'role',
+        'status',
     ];
 
     protected function casts(): array
@@ -43,6 +54,31 @@ class Usuario extends Authenticatable
 
     public function nivel(): BelongsTo
     {
-        return $this->belongsTo(Nivel::class, 'nivel_id');
+        return $this->belongsTo(Nivel::class, 'FK_id_nivel');
+    }
+
+    public function getNameAttribute(): ?string
+    {
+        return $this->nome ?? ($this->email ? explode('@', $this->email)[0] : 'Usuário');
+    }
+
+    public function getPhoneAttribute(): ?string
+    {
+        return $this->attributes['phone'] ?? $this->attributes['telefone'] ?? null;
+    }
+
+    public function getTelefoneAttribute(): ?string
+    {
+        return $this->attributes['telefone'] ?? $this->attributes['phone'] ?? null;
+    }
+
+    public function getRoleAttribute(): string
+    {
+        return $this->attributes['role'] ?? ($this->nivel && strtolower($this->nivel->nome) === 'administrador' ? 'administrador' : 'colaborador');
+    }
+
+    public function getStatusAttribute(): string
+    {
+        return $this->attributes['status'] ?? 'ativo';
     }
 }

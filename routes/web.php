@@ -1,19 +1,51 @@
 <?php
 
+use App\Http\Controllers\AdminUsuarioController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\AutenticacaoController;
+use App\Http\Controllers\ConviteController;
 use Database\Seeders\CriancaDataSeeder;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('components.secoes.criancas.home.home');
-})->name('home');
+// Rotas públicas (Acesso para visitantes / login)
+Route::get('/login', [AutenticacaoController::class, 'mostrarLogin'])->name('login');
+Route::post('/login', [AutenticacaoController::class, 'entrar'])->name('login.post');
 
-Route::post('/login', [AutenticacaoController::class, 'entrar'])->name('login');
+// Rotas públicas de convite
+Route::get('/convite/{id}', [ConviteController::class, 'mostrarConfirmacao'])->name('convite.confirmar');
+Route::post('/convite/{id}/aceitar', [ConviteController::class, 'aceitar'])->name('convite.aceitar');
+Route::post('/convite/{id}/recusar', [ConviteController::class, 'recusar'])->name('convite.recusar');
 
-Route::middleware('auth:sanctum')->group(function () {
+// Rotas públicas de redefinição de senha (esqueci minha senha)
+Route::get('/redefinir-senha', [AutenticacaoController::class, 'mostrarRedefinirSenha'])->name('senha.redefinir');
+Route::post('/redefinir-senha', [AutenticacaoController::class, 'solicitarRedefinicaoSenha'])->name('senha.solicitar');
+
+// Rotas privadas (Protegidas pelo middleware de autenticação)
+Route::middleware('auth')->group(function () {
+    Route::get('/', function () {
+        return view('components.secoes.criancas.home.home');
+    })->name('home');
+
+    Route::get('/dashboard', function () {
+        return view('components.dashboard');
+    })->name('dashboard');
+
+    Route::middleware(['admin'])->prefix('admin/usuarios')->name('admin.usuarios.')->group(function () {
+        Route::get('/', [AdminUsuarioController::class, 'listar'])->name('index');
+        Route::post('/convidar', [AdminUsuarioController::class, 'convidar'])->name('convidar');
+        Route::put('/{id}', [AdminUsuarioController::class, 'atualizar'])->name('update');
+        Route::put('/{id}/tornar-admin', [AdminUsuarioController::class, 'tornarAdmin'])->name('tornarAdmin');
+        Route::put('/{id}/remover-admin', [AdminUsuarioController::class, 'removerAdmin'])->name('removerAdmin');
+        Route::put('/{id}/desativar', [AdminUsuarioController::class, 'desativar'])->name('desativar');
+        Route::put('/{id}/reativar', [AdminUsuarioController::class, 'reativar'])->name('reativar');
+        Route::post('/{id}/redefinir-senha', [AdminUsuarioController::class, 'redefinirSenha'])->name('redefinirSenha');
+        Route::delete('/{id}', [AdminUsuarioController::class, 'deletar'])->name('destroy');
+    });
+
     Route::post('/logout', [AutenticacaoController::class, 'sair'])->name('logout');
+
     Route::get('/meu-perfil', [AutenticacaoController::class, 'usuarioAutenticado'])->name('profile');
+    Route::put('/meu-perfil', [AutenticacaoController::class, 'atualizarPerfil'])->name('profile.update');
 
     Route::prefix('usuario')->name('usuario.')->group(function () {
         Route::get('/', [UsuarioController::class, 'listar'])->name('index');
@@ -22,25 +54,24 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{id}', [UsuarioController::class, 'atualizar'])->name('update');
         Route::delete('/{id}', [UsuarioController::class, 'deletar'])->name('destroy');
     });
-});
 
-Route::prefix('crianca')->name('crianca.')->group(function () {
+    Route::prefix('crianca')->name('crianca.')->group(function () {
+        Route::get('/menu/{id}', function ($id) {
+            $crianca = CriancaDataSeeder::getCriancaById($id);
 
-    Route::get('/menu/{id}', function ($id) {
-        $crianca = CriancaDataSeeder::getCriancaById($id);
+            abort_if(!$crianca, 404, 'Criança não encontrada');
 
-        abort_if(!$crianca, 404, 'Criança não encontrada');
+            return view('components.menu.menuSecoesCriancas.menuCrianca', compact('crianca'));
+        })->name('menu');
 
-        return view('components.menu.menuSecoesCriancas.menuCrianca', compact('crianca'));
-    })->name('menu');
+        $secoes = ['saude', 'responsaveis', 'autorizacoes', 'relatos', 'matricula'];
 
-    $secoes = ['saude', 'responsaveis', 'autorizacoes', 'relatos', 'matricula'];
-
-    foreach ($secoes as $secao) {
-        Route::get("/{id}/{$secao}", function ($id) use ($secao) {
-            return view("components.secoes.criancas.{$secao}.{$secao}", [
-                'criancaId' => $id,
-            ]);
-        })->whereNumber('id')->name($secao);
-    }
+        foreach ($secoes as $secao) {
+            Route::get("/{id}/{$secao}", function ($id) use ($secao) {
+                return view("components.secoes.criancas.{$secao}.{$secao}", [
+                    'criancaId' => $id,
+                ]);
+            })->whereNumber('id')->name($secao);
+        }
+    });
 });

@@ -13,11 +13,14 @@ return new class extends Migration
     {
         Schema::create('usuarios', function (Blueprint $table) {
             $table->id();
-            $table->string('nome');
-            $table->string('cpf');
+            $table->string('nome')->nullable();
+            $table->string('cpf')->nullable();
             $table->string('email')->unique();
-            $table->date('data_nascimento');
-            $table->foreignId('FK_id_nivel')->constrained('niveis');
+            $table->string('telefone', 20)->nullable();
+            $table->date('data_nascimento')->nullable();
+            $table->foreignId('FK_id_nivel')->nullable()->constrained('niveis');
+            $table->string('role', 50)->default('colaborador');
+            $table->string('status', 30)->default('ativo');
             $table->timestamp('email_verificado_em')->nullable();
             $table->string('senha');
             $table->rememberToken(); // Mantém o token de "lembrar-me" do Laravel

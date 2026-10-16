@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Mail\ConviteUsuarioMail;
-use App\Mail\RedefinirSenhaMail;
 use App\Models\Nivel;
 use App\Models\Usuario;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -87,77 +86,6 @@ class UsuarioService
             'usuario' => $usuario,
             'tempPassword' => $tempPassword,
             'inviteUrl' => $inviteUrl,
-        ];
-    }
-
-    public function tornarAdmin(int $id): Usuario
-    {
-        $usuario = Usuario::findOrFail($id);
-
-        $nivelAdmin = Nivel::firstOrCreate(
-            ['nome' => 'Administrador'],
-            ['descricao' => 'Acesso total ao sistema']
-        );
-
-        $usuario->update([
-            'role' => 'administrador',
-            'FK_id_nivel' => $nivelAdmin->id,
-        ]);
-
-        return $usuario->fresh(['nivel']);
-    }
-
-    public function removerAdmin(int $id): Usuario
-    {
-        $usuario = Usuario::findOrFail($id);
-
-        $nivelColaborador = Nivel::firstOrCreate(
-            ['nome' => 'Colaborador'],
-            ['descricao' => 'Acesso básico ao painel']
-        );
-
-        $usuario->update([
-            'role' => 'colaborador',
-            'FK_id_nivel' => $nivelColaborador->id,
-        ]);
-
-        return $usuario->fresh(['nivel']);
-    }
-
-    public function desativar(int $id): Usuario
-    {
-        $usuario = Usuario::findOrFail($id);
-        $usuario->update(['status' => 'inativo']);
-
-        return $usuario->fresh(['nivel']);
-    }
-
-    public function reativar(int $id): Usuario
-    {
-        $usuario = Usuario::findOrFail($id);
-        $usuario->update(['status' => 'ativo']);
-
-        return $usuario->fresh(['nivel']);
-    }
-
-    public function redefinirSenha(int $id): array
-    {
-        $usuario = Usuario::findOrFail($id);
-        $novaSenha = Str::random(10);
-
-        $usuario->update([
-            'senha' => Hash::make($novaSenha),
-        ]);
-
-        try {
-            Mail::to($usuario->email)->send(new RedefinirSenhaMail($novaSenha, $usuario->nome));
-        } catch (\Throwable $e) {
-            Log::error('Erro ao enviar e-mail de redefinição de senha: ' . $e->getMessage());
-        }
-
-        return [
-            'usuario' => $usuario,
-            'novaSenha' => $novaSenha,
         ];
     }
 

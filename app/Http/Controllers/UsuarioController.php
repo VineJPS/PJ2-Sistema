@@ -7,7 +7,6 @@ use App\Services\UsuarioService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class UsuarioController extends Controller
@@ -15,22 +14,6 @@ class UsuarioController extends Controller
     public function __construct(
         protected UsuarioService $usuarioService
     ) {}
-
-    protected function verificarPermissaoAdmin(Request $request): JsonResponse|RedirectResponse|null
-    {
-        $usuario = Auth::user();
-        if (!$usuario || $usuario->role !== 'administrador') {
-            if ($request->wantsJson()) {
-                return response()->json([
-                    'mensagem' => 'Você não possui permissão para gerenciar o painel. Solicite acesso a um administrador.',
-                ], 403);
-            }
-
-            return redirect()->route('admin.usuarios.index')->with('error', 'Você não possui permissão para gerenciar o painel. Solicite acesso a um administrador.');
-        }
-
-        return null;
-    }
 
     public function listar(Request $request): JsonResponse|View
     {
@@ -77,76 +60,6 @@ class UsuarioController extends Controller
         }
 
         return redirect()->route('admin.usuarios.index')->with('success', 'Convite enviado com sucesso para ' . $resultado['usuario']->email . '!');
-    }
-
-    public function tornarAdmin(Request $request, int $id): JsonResponse|RedirectResponse
-    {
-        $usuario = $this->usuarioService->tornarAdmin($id);
-
-        if ($request->wantsJson()) {
-            return response()->json([
-                'mensagem' => 'Usuário promovido a administrador com sucesso',
-                'usuario' => $usuario,
-            ]);
-        }
-
-        return redirect()->route('admin.usuarios.index')->with('success', 'Usuário promovido a administrador com sucesso!');
-    }
-
-    public function removerAdmin(Request $request, int $id): JsonResponse|RedirectResponse
-    {
-        $usuario = $this->usuarioService->removerAdmin($id);
-
-        if ($request->wantsJson()) {
-            return response()->json([
-                'mensagem' => 'Acesso de administrador removido com sucesso',
-                'usuario' => $usuario,
-            ]);
-        }
-
-        return redirect()->route('admin.usuarios.index')->with('success', 'Acesso de administrador removido com sucesso!');
-    }
-
-    public function desativar(Request $request, int $id): JsonResponse|RedirectResponse
-    {
-        $usuario = $this->usuarioService->desativar($id);
-
-        if ($request->wantsJson()) {
-            return response()->json([
-                'mensagem' => 'Usuário desativado com sucesso',
-                'usuario' => $usuario,
-            ]);
-        }
-
-        return redirect()->route('admin.usuarios.index')->with('success', 'Usuário desativado com sucesso!');
-    }
-
-    public function reativar(Request $request, int $id): JsonResponse|RedirectResponse
-    {
-        $usuario = $this->usuarioService->reativar($id);
-
-        if ($request->wantsJson()) {
-            return response()->json([
-                'mensagem' => 'Usuário reativado com sucesso',
-                'usuario' => $usuario,
-            ]);
-        }
-
-        return redirect()->route('admin.usuarios.index')->with('success', 'Usuário reativado com sucesso!');
-    }
-
-    public function redefinirSenha(Request $request, int $id): JsonResponse|RedirectResponse
-    {
-        $resultado = $this->usuarioService->redefinirSenha($id);
-
-        if ($request->wantsJson()) {
-            return response()->json([
-                'mensagem' => 'Nova senha temporária enviada por e-mail com sucesso',
-                'usuario' => $resultado['usuario'],
-            ]);
-        }
-
-        return redirect()->route('admin.usuarios.index')->with('success', 'Nova senha temporária enviada com sucesso para o e-mail do usuário!');
     }
 
     public function atualizar(AtualizarUsuarioRequest $request, int $id): JsonResponse|RedirectResponse

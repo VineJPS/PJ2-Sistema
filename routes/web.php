@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminUsuarioController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\AutenticacaoController;
 use App\Http\Controllers\ConviteController;
@@ -26,15 +27,15 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
 
     Route::middleware(['admin'])->prefix('admin/usuarios')->name('admin.usuarios.')->group(function () {
-        Route::get('/', [UsuarioController::class, 'listar'])->name('index');
-        Route::post('/convidar', [UsuarioController::class, 'salvar'])->name('convidar');
-        Route::put('/{id}', [UsuarioController::class, 'atualizar'])->name('update');
-        Route::put('/{id}/tornar-admin', [UsuarioController::class, 'tornarAdmin'])->name('tornarAdmin');
-        Route::put('/{id}/remover-admin', [UsuarioController::class, 'removerAdmin'])->name('removerAdmin');
-        Route::put('/{id}/desativar', [UsuarioController::class, 'desativar'])->name('desativar');
-        Route::put('/{id}/reativar', [UsuarioController::class, 'reativar'])->name('reativar');
-        Route::post('/{id}/redefinir-senha', [UsuarioController::class, 'redefinirSenha'])->name('redefinirSenha');
-        Route::delete('/{id}', [UsuarioController::class, 'deletar'])->name('destroy');
+        Route::get('/', [AdminUsuarioController::class, 'listar'])->name('index');
+        Route::post('/convidar', [AdminUsuarioController::class, 'convidar'])->name('convidar');
+        Route::put('/{id}', [AdminUsuarioController::class, 'atualizar'])->name('update');
+        Route::put('/{id}/tornar-admin', [AdminUsuarioController::class, 'tornarAdmin'])->name('tornarAdmin');
+        Route::put('/{id}/remover-admin', [AdminUsuarioController::class, 'removerAdmin'])->name('removerAdmin');
+        Route::put('/{id}/desativar', [AdminUsuarioController::class, 'desativar'])->name('desativar');
+        Route::put('/{id}/reativar', [AdminUsuarioController::class, 'reativar'])->name('reativar');
+        Route::post('/{id}/redefinir-senha', [AdminUsuarioController::class, 'redefinirSenha'])->name('redefinirSenha');
+        Route::delete('/{id}', [AdminUsuarioController::class, 'deletar'])->name('destroy');
     });
 
     Route::post('/logout', [AutenticacaoController::class, 'sair'])->name('logout');

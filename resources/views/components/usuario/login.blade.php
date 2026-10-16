@@ -92,7 +92,7 @@
         <!-- Rodapé do Card (Esqueceu a senha) -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 text-base md:text-xl mt-8 text-center">
             <span class="text-[#7e8aa1] font-normal">Esqueceu sua senha?</span>
-            <a href="#" class="text-[#2255b0] font-semibold hover:underline">Redefinir senha</a>
+            <a href="{{ route('senha.redefinir') }}" class="text-[#2255b0] font-semibold hover:underline">Redefinir senha</a>
         </div>
 
     </div>

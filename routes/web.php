@@ -16,6 +16,10 @@ Route::get('/convite/{id}', [ConviteController::class, 'mostrarConfirmacao'])->n
 Route::post('/convite/{id}/aceitar', [ConviteController::class, 'aceitar'])->name('convite.aceitar');
 Route::post('/convite/{id}/recusar', [ConviteController::class, 'recusar'])->name('convite.recusar');
 
+// Rotas públicas de redefinição de senha (esqueci minha senha)
+Route::get('/redefinir-senha', [AutenticacaoController::class, 'mostrarRedefinirSenha'])->name('senha.redefinir');
+Route::post('/redefinir-senha', [AutenticacaoController::class, 'solicitarRedefinicaoSenha'])->name('senha.solicitar');
+
 // Rotas privadas (Protegidas pelo middleware de autenticação)
 Route::middleware('auth')->group(function () {
     Route::get('/', function () {

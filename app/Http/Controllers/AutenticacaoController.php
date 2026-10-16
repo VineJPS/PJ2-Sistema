@@ -3,12 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
+use App\Mail\RedefinirSenhaMail;
+use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -132,5 +137,42 @@ class AutenticacaoController extends Controller
         }
 
         return redirect()->route('profile')->with('sucesso', 'Perfil atualizado com sucesso!');
+    }
+
+    public function mostrarRedefinirSenha(): View|RedirectResponse
+    {
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+
+        return view('components.usuario.redefinir-senha');
+    }
+
+    public function solicitarRedefinicaoSenha(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'email' => ['required', 'string', 'email'],
+        ], [
+            'email.required' => 'O campo e-mail é obrigatório.',
+            'email.email' => 'Digite um e-mail válido.',
+        ]);
+
+        $usuario = Usuario::where('email', $request->email)->first();
+
+        // Sempre retorna a mesma mensagem para não expor se o e-mail existe ou não
+        if (!$usuario || $usuario->status === 'inativo') {
+            return back()->with('info', 'Se este e-mail estiver cadastrado, você receberá as instruções em breve.');
+        }
+
+        $novaSenha = Str::random(10);
+        $usuario->update(['senha' => Hash::make($novaSenha)]);
+
+        try {
+            Mail::to($usuario->email)->send(new RedefinirSenhaMail($novaSenha, $usuario->nome));
+        } catch (\Throwable $e) {
+            Log::error('Erro ao enviar e-mail de redefinição de senha: ' . $e->getMessage());
+        }
+
+        return redirect()->route('login')->with('info', 'Uma nova senha temporária foi enviada para o seu e-mail.');
     }
 }

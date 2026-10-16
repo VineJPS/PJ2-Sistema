@@ -28,6 +28,19 @@
         <form method="POST" action="{{ route('login') }}" class="w-full max-w-[450px] flex flex-col gap-5">
             @csrf
 
+            <!-- Feedback de Notificação / Redefinição de Senha -->
+            @if(request('redefinir'))
+                <div class="p-3 bg-blue-50 border border-blue-200 text-blue-700 text-sm rounded-xl text-center">
+                    Sua nova senha temporária foi enviada por e-mail. Utilize-a para acessar o sistema.
+                </div>
+            @endif
+
+            @if(session('info'))
+                <div class="p-3 bg-blue-50 border border-blue-200 text-blue-700 text-sm rounded-xl text-center">
+                    {{ session('info') }}
+                </div>
+            @endif
+
             <!-- Feedback de Erro Geral ou E-mail -->
             @error('email')
                 <div class="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl text-center">

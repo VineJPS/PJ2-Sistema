@@ -16,15 +16,23 @@
     <main class="flex-1 p-8 md:p-12 overflow-y-auto">
         
         <!-- Feedback de Notificação de Sucesso -->
-        @if(session('sucesso'))
-            <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 text-sm font-medium rounded-xl flex items-center justify-between shadow-sm">
+        @if(session('sucesso') || session('success'))
+            <div 
+                x-data="{ show: true }" 
+                x-init="setTimeout(() => show = false, 3500)" 
+                x-show="show" 
+                x-transition:leave="transition ease-in duration-300"
+                x-transition:leave-start="opacity-100 transform translate-y-0"
+                x-transition:leave-end="opacity-0 transform -translate-y-2"
+                class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 text-sm font-medium rounded-xl flex items-center justify-between shadow-sm"
+            >
                 <div class="flex items-center gap-2">
                     <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <span>{{ session('sucesso') }}</span>
+                    <span>{{ session('sucesso') ?? session('success') }}</span>
                 </div>
-                <button type="button" onclick="this.parentElement.remove()" class="text-green-500 hover:text-green-700 cursor-pointer">
+                <button type="button" @click="show = false" onclick="this.parentElement.remove()" class="text-green-500 hover:text-green-700 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -231,6 +239,11 @@
         </div>
 
         <!-- Seção 2: Acesso e Permissões -->
+        @php
+            $roleNormalized = strtolower(auth()->user()->role ?? (auth()->user()->nivel ? auth()->user()->nivel->nome : 'colaborador'));
+            $isAdmin = $roleNormalized === 'administrador';
+            $statusNormalized = strtolower(auth()->user()->status ?? 'ativo');
+        @endphp
         <div class="bg-white rounded-2xl border border-[#e2e8f0] shadow-sm overflow-hidden">
             <!-- Cabeçalho do Card -->
             <div class="px-6 py-5 border-b border-[#f1f5f9]">
@@ -241,18 +254,37 @@
             <div class="grid grid-cols-1 md:grid-cols-2 p-6 gap-6 items-center">
                 <div>
                     <span class="block text-xs font-semibold text-[#1d4ed8] uppercase tracking-wider mb-2">Nível de acesso</span>
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#eff6ff] text-[#1d4ed8] text-xs font-semibold">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#1d4ed8]"></span>
-                        {{ auth()->user()->nivel->nome ?? 'Usuário' }}
-                    </div>
+                    @if($isAdmin)
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                            Administrador
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                            Colaborador
+                        </span>
+                    @endif
                 </div>
 
                 <div>
                     <span class="block text-xs font-semibold text-[#1d4ed8] uppercase tracking-wider mb-2">Status da conta</span>
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f0fdf4] text-[#16a34a] text-xs font-semibold">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#16a34a]"></span>
-                        {{ auth()->user()->status ?? 'Ativa' }}
-                    </div>
+                    @if($statusNormalized === 'ativo' || $statusNormalized === 'ativa')
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                            Ativo
+                        </span>
+                    @elseif($statusNormalized === 'pendente')
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                            Pendente
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 text-rose-700 text-xs font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
+                            Inativo
+                        </span>
+                    @endif
                 </div>
             </div>
         </div>

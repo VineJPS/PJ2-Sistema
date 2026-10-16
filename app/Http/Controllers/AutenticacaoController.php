@@ -15,10 +15,16 @@ use Illuminate\View\View;
 
 class AutenticacaoController extends Controller
 {
-    public function mostrarLogin(): View|RedirectResponse
+    public function mostrarLogin(Request $request): View|RedirectResponse
     {
+        if ($request->has('redefinir') || $request->has('reset')) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
         if (Auth::check()) {
-            return redirect()->route('profile');
+            return redirect()->route('dashboard');
         }
 
         return view('components.usuario.login');

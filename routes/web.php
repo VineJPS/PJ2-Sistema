@@ -2,12 +2,18 @@
 
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\AutenticacaoController;
+use App\Http\Controllers\ConviteController;
 use Database\Seeders\CriancaDataSeeder;
 use Illuminate\Support\Facades\Route;
 
 // Rotas públicas (Acesso para visitantes / login)
 Route::get('/login', [AutenticacaoController::class, 'mostrarLogin'])->name('login');
 Route::post('/login', [AutenticacaoController::class, 'entrar'])->name('login.post');
+
+// Rotas públicas de convite
+Route::get('/convite/{id}', [ConviteController::class, 'mostrarConfirmacao'])->name('convite.confirmar');
+Route::post('/convite/{id}/aceitar', [ConviteController::class, 'aceitar'])->name('convite.aceitar');
+Route::post('/convite/{id}/recusar', [ConviteController::class, 'recusar'])->name('convite.recusar');
 
 // Rotas privadas (Protegidas pelo middleware de autenticação)
 Route::middleware('auth')->group(function () {
@@ -19,7 +25,7 @@ Route::middleware('auth')->group(function () {
         return view('components.dashboard');
     })->name('dashboard');
 
-    Route::prefix('admin/usuarios')->name('admin.usuarios.')->group(function () {
+    Route::middleware(['admin'])->prefix('admin/usuarios')->name('admin.usuarios.')->group(function () {
         Route::get('/', [UsuarioController::class, 'listar'])->name('index');
         Route::post('/convidar', [UsuarioController::class, 'salvar'])->name('convidar');
         Route::put('/{id}', [UsuarioController::class, 'atualizar'])->name('update');

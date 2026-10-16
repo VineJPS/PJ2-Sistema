@@ -7,6 +7,7 @@ use App\Services\UsuarioService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class UsuarioController extends Controller
@@ -14,6 +15,22 @@ class UsuarioController extends Controller
     public function __construct(
         protected UsuarioService $usuarioService
     ) {}
+
+    protected function verificarPermissaoAdmin(Request $request): JsonResponse|RedirectResponse|null
+    {
+        $usuario = Auth::user();
+        if (!$usuario || $usuario->role !== 'administrador') {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'mensagem' => 'Você não possui permissão para gerenciar o painel. Solicite acesso a um administrador.',
+                ], 403);
+            }
+
+            return redirect()->route('admin.usuarios.index')->with('error', 'Você não possui permissão para gerenciar o painel. Solicite acesso a um administrador.');
+        }
+
+        return null;
+    }
 
     public function listar(Request $request): JsonResponse|View
     {

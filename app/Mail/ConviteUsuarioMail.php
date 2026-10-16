@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Usuario;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -14,7 +15,10 @@ class ConviteUsuarioMail extends Mailable
 
     public function __construct(
         public string $tempPassword,
-        public ?string $nome = null
+        public ?string $nome = null,
+        public ?Usuario $usuario = null,
+        public ?string $remetenteEmail = null,
+        public ?string $inviteUrl = null
     ) {}
 
     public function envelope(): Envelope

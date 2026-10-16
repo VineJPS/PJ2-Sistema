@@ -32,9 +32,9 @@
                                 <code style="font-size: 22px; font-weight: 700; color: #1e40af; letter-spacing: 1px; font-family: monospace;">{{ $tempPassword }}</code>
                             </div>
 
-                            <!-- Button -->
+                            <!-- Button --> 
                             <div style="text-align: center; margin-bottom: 32px;">
-                                <a href="{{ route('login') }}" style="display: inline-block; background-color: #2563eb; color: #ffffff; font-weight: 700; font-size: 15px; padding: 14px 32px; border-radius: 12px; text-decoration: none; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);">
+                                <a href="{{ $inviteUrl ?? (isset($usuario) ? route('convite.confirmar', ['id' => $usuario->id]) : route('login')) }}" style="display: inline-block; background-color: #2563eb; color: #ffffff; font-weight: 700; font-size: 15px; padding: 14px 32px; border-radius: 12px; text-decoration: none; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);">
                                     Acessar o Painel
                                 </a>
                             </div>

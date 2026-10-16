@@ -31,7 +31,7 @@
 
                             <!-- Button -->
                             <div style="text-align: center; margin-bottom: 32px;">
-                                <a href="{{ route('login') }}" style="display: inline-block; background-color: #2563eb; color: #ffffff; font-weight: 700; font-size: 15px; padding: 14px 32px; border-radius: 12px; text-decoration: none; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);">
+                                <a href="{{ route('login', ['redefinir' => 1]) }}" style="display: inline-block; background-color: #2563eb; color: #ffffff; font-weight: 700; font-size: 15px; padding: 14px 32px; border-radius: 12px; text-decoration: none; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);">
                                     Fazer Login
                                 </a>
                             </div>

@@ -8,6 +8,7 @@ use App\Models\Nivel;
 use App\Models\Usuario;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -73,8 +74,11 @@ class UsuarioService
             'senha' => Hash::make($tempPassword),
         ]);
 
+        $remetenteEmail = Auth::user()?->email ?? 'admin@recantobetel.com.br';
+        $inviteUrl = route('convite.confirmar', ['id' => $usuario->id, 'remetente' => $remetenteEmail]);
+
         try {
-            Mail::to($usuario->email)->send(new ConviteUsuarioMail($tempPassword, $usuario->nome));
+            Mail::to($usuario->email)->send(new ConviteUsuarioMail($tempPassword, $usuario->nome, $usuario, $remetenteEmail, $inviteUrl));
         } catch (\Throwable $e) {
             Log::error('Erro ao enviar e-mail de convite: ' . $e->getMessage());
         }
@@ -82,6 +86,7 @@ class UsuarioService
         return [
             'usuario' => $usuario,
             'tempPassword' => $tempPassword,
+            'inviteUrl' => $inviteUrl,
         ];
     }
 

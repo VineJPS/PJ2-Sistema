@@ -20,6 +20,9 @@
         x-data="{ 
             modalAberta: null, 
             usuarioSelecionado: null,
+            searchQuery: '{{ addslashes($search ?? '') }}',
+            currentTab: '{{ $tab ?? 'todos' }}',
+            isLoading: false,
             editForm: {
                 id: '',
                 nome: '',
@@ -39,6 +42,36 @@
                     status: user.status || 'ativo'
                 };
                 this.modalAberta = 'editarUsuario';
+            },
+            buscarUsuarios() {
+                this.isLoading = true;
+                const url = new URL('{{ route('admin.usuarios.index') }}', window.location.origin);
+                url.searchParams.set('tab', this.currentTab);
+                if (this.searchQuery && this.searchQuery.trim() !== '') {
+                    url.searchParams.set('search', this.searchQuery.trim());
+                }
+                window.history.replaceState({}, '', url.toString());
+
+                fetch(url.toString(), {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => res.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const novoConteudo = doc.getElementById('container-tabela-usuarios');
+                    const containerAtual = document.getElementById('container-tabela-usuarios');
+                    if (novoConteudo && containerAtual) {
+                        containerAtual.innerHTML = novoConteudo.innerHTML;
+                        if (window.Alpine) {
+                            window.Alpine.initTree(containerAtual);
+                        }
+                    }
+                })
+                .catch(err => console.error(err))
+                .finally(() => {
+                    this.isLoading = false;
+                });
             }
         }" 
         class="flex-1 p-8 md:p-12 overflow-y-auto"
@@ -46,14 +79,22 @@
         
         <!-- Feedback de Notificação de Sucesso -->
         @if(session('success') || session('sucesso'))
-            <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 text-sm font-medium rounded-xl flex items-center justify-between shadow-sm">
+            <div 
+                x-data="{ show: true }" 
+                x-init="setTimeout(() => show = false, 3500)" 
+                x-show="show" 
+                x-transition:leave="transition ease-in duration-300"
+                x-transition:leave-start="opacity-100 transform translate-y-0"
+                x-transition:leave-end="opacity-0 transform -translate-y-2"
+                class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 text-sm font-medium rounded-xl flex items-center justify-between shadow-sm"
+            >
                 <div class="flex items-center gap-2">
                     <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
                     <span>{{ session('success') ?? session('sucesso') }}</span>
                 </div>
-                <button type="button" onclick="this.parentElement.remove()" class="text-green-500 hover:text-green-700 cursor-pointer">
+                <button type="button" @click="show = false" onclick="this.parentElement.remove()" class="text-green-500 hover:text-green-700 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -85,21 +126,21 @@
                 <p class="text-[#64748b] text-sm md:text-base">Gerencie quem tem acesso ao painel e o que cada pessoa pode fazer.</p>
             </div>
             <button 
-                type="button" 
-                @click="modalAberta = 'convidar'" 
-                class="inline-flex items-center justify-center gap-2 bg-[#1e40af] hover:bg-blue-800 text-white font-semibold px-5 py-3 rounded-xl shadow-sm transition-colors text-sm cursor-pointer"
-            >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                Convidar usuário
-            </button>
+                    type="button" 
+                    @click="modalAberta = 'convidar'" 
+                    class="inline-flex items-center justify-center gap-2 bg-[#1e40af] hover:bg-blue-800 text-white font-semibold px-5 py-3 rounded-xl shadow-sm transition-colors text-sm cursor-pointer"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Convidar usuário
+                </button>
         </div>
 
         <!-- Barra de Ferramentas (Busca e Filtros de Abas) -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <!-- Campo de Busca -->
-            <form method="GET" action="{{ route('admin.usuarios.index') }}" class="relative w-full md:w-96">
+            <form method="GET" action="{{ route('admin.usuarios.index') }}" @submit.prevent="buscarUsuarios()" class="relative w-full md:w-96">
                 <input type="hidden" name="tab" value="{{ $tab ?? 'todos' }}">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,10 +150,20 @@
                 <input 
                     type="text" 
                     name="search"
+                    x-model="searchQuery"
+                    @input.debounce.300ms="buscarUsuarios()"
+                    @keydown.enter.prevent
                     value="{{ $search ?? '' }}"
                     placeholder="Buscar por nome ou e-mail..." 
-                    class="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-600 transition-colors shadow-sm"
+                    class="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-10 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-600 transition-colors shadow-sm"
                 />
+                <!-- Indicador de busca em tempo real -->
+                <span x-show="isLoading" x-cloak class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-blue-600">
+                    <svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                </span>
             </form>
 
             <!-- Abas de Filtro -->
@@ -139,7 +190,7 @@
         </div>
 
         <!-- Tabela de Usuários -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div id="container-tabela-usuarios" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -223,123 +274,123 @@
                                 </td>
                                 <td class="py-4 px-6 text-right relative" x-data="{ menuOpen: false }">
                                     <div class="flex items-center justify-end gap-1">
-                                        <!-- Botão Ação Rápida: Editar -->
-                                        <button 
-                                            type="button" 
-                                            @click="abrirEditar({{ json_encode($user) }})" 
-                                            title="Editar usuário"
-                                            class="text-slate-400 hover:text-blue-600 p-1.5 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer"
-                                        >
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                            </svg>
-                                        </button>
-
-                                        <!-- Botão Três Pontos (Menu de Ações) -->
-                                        <button 
-                                            type="button" 
-                                            @click="menuOpen = !menuOpen" 
-                                            title="Mais opções"
-                                            class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-                                        >
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
-                                        </button>
-                                    </div>
-
-                                    <!-- Dropdown de Ações por Linha -->
-                                    <div 
-                                        x-show="menuOpen" 
-                                        @click.away="menuOpen = false" 
-                                        x-cloak
-                                        class="absolute right-6 top-12 z-20 w-52 bg-white rounded-xl shadow-xl border border-slate-100 py-1.5 text-left text-xs font-medium text-slate-700 divide-y divide-slate-100"
-                                    >
-                                        <!-- Seção 1: Edição e Senha -->
-                                        <div class="py-1">
-                                            <!-- Editar Usuário -->
+                                            <!-- Botão Ação Rápida: Editar -->
                                             <button 
                                                 type="button" 
-                                                @click="abrirEditar({{ json_encode($user) }}); menuOpen = false"
-                                                class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-slate-700 cursor-pointer"
+                                                @click="abrirEditar({{ json_encode($user) }})" 
+                                                title="Editar usuário"
+                                                class="text-slate-400 hover:text-blue-600 p-1.5 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer"
                                             >
-                                                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                                 </svg>
-                                                Editar usuário
                                             </button>
 
-                                            <!-- Redefinir Senha -->
+                                            <!-- Botão Três Pontos (Menu de Ações) -->
                                             <button 
                                                 type="button" 
-                                                @click="usuarioSelecionado = {{ json_encode($user) }}; modalAberta = 'redefinirSenha'; menuOpen = false"
-                                                class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-slate-700 cursor-pointer"
+                                                @click="menuOpen = !menuOpen" 
+                                                title="Mais opções"
+                                                class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
                                             >
-                                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
-                                                Redefinir senha
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
                                             </button>
-                                        </div>
-
-                                        <!-- Seção 2: Permissões de Cargo -->
-                                        <div class="py-1">
-                                            @if($isAdmin)
-                                                <!-- Remover como Administrador (somente para Admins) -->
-                                                <button 
-                                                    type="button" 
-                                                    @click="usuarioSelecionado = {{ json_encode($user) }}; modalAberta = 'removerAdmin'; menuOpen = false"
-                                                    class="w-full text-left px-4 py-2 hover:bg-amber-50/60 flex items-center gap-2.5 text-amber-700 cursor-pointer"
-                                                >
-                                                    <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"/></svg>
-                                                    Remover como admin
-                                                </button>
-                                            @else
-                                                <!-- Tornar Administrador (para Colaboradores) -->
-                                                <button 
-                                                    type="button" 
-                                                    @click="usuarioSelecionado = {{ json_encode($user) }}; modalAberta = 'tornarAdmin'; menuOpen = false"
-                                                    class="w-full text-left px-4 py-2 hover:bg-blue-50/60 flex items-center gap-2.5 text-blue-700 cursor-pointer"
-                                                >
-                                                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                                                    Tornar administrador
-                                                </button>
-                                            @endif
-                                        </div>
-
-                                        <!-- Seção 3: Ativação / Desativação de Usuário -->
-                                        <div class="py-1">
-                                            @if($statusNormalized === 'inativo')
-                                                <!-- Reativar Usuário -->
-                                                <button 
-                                                    type="button" 
-                                                    @click="usuarioSelecionado = {{ json_encode($user) }}; modalAberta = 'reativar'; menuOpen = false"
-                                                    class="w-full text-left px-4 py-2 hover:bg-emerald-50/60 flex items-center gap-2.5 text-emerald-700 font-medium cursor-pointer"
-                                                >
-                                                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                                    Reativar usuário
-                                                </button>
-                                            @else
-                                                <!-- Desativar Usuário -->
-                                                <button 
-                                                    type="button" 
-                                                    @click="usuarioSelecionado = {{ json_encode($user) }}; modalAberta = 'desativar'; menuOpen = false"
-                                                    class="w-full text-left px-4 py-2 hover:bg-rose-50/60 flex items-center gap-2.5 text-rose-600 cursor-pointer"
-                                                >
-                                                    <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
-                                                    Desativar usuário
-                                                </button>
-                                            @endif
-                                        </div>
-
-                                        <!-- Seção 4: Exclusão Permanente -->
-                                        <div class="py-1">
-                                            <button 
-                                                type="button" 
-                                                @click="usuarioSelecionado = {{ json_encode($user) }}; modalAberta = 'removerUsuario'; menuOpen = false"
-                                                class="w-full text-left px-4 py-2 hover:bg-rose-50 flex items-center gap-2.5 text-rose-700 font-semibold cursor-pointer"
-                                            >
-                                                <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                                Remover usuário
-                                            </button>
-                                        </div>
                                     </div>
+
+                                        <!-- Dropdown de Ações por Linha -->
+                                        <div 
+                                            x-show="menuOpen" 
+                                            @click.away="menuOpen = false" 
+                                            x-cloak
+                                            class="absolute right-6 top-12 z-20 w-52 bg-white rounded-xl shadow-xl border border-slate-100 py-1.5 text-left text-xs font-medium text-slate-700 divide-y divide-slate-100"
+                                        >
+                                            <!-- Seção 1: Edição e Senha -->
+                                            <div class="py-1">
+                                                <!-- Editar Usuário -->
+                                                <button 
+                                                    type="button" 
+                                                    @click="abrirEditar({{ json_encode($user) }}); menuOpen = false"
+                                                    class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-slate-700 cursor-pointer"
+                                                >
+                                                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                    </svg>
+                                                    Editar usuário
+                                                </button>
+
+                                                <!-- Redefinir Senha -->
+                                                <button 
+                                                    type="button" 
+                                                    @click="usuarioSelecionado = {{ json_encode($user) }}; modalAberta = 'redefinirSenha'; menuOpen = false"
+                                                    class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-slate-700 cursor-pointer"
+                                                >
+                                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                                                    Redefinir senha
+                                                </button>
+                                            </div>
+
+                                            <!-- Seção 2: Permissões de Cargo -->
+                                            <div class="py-1">
+                                                @if($isAdmin)
+                                                    <!-- Remover como Administrador (somente para Admins) -->
+                                                    <button 
+                                                        type="button" 
+                                                        @click="usuarioSelecionado = {{ json_encode($user) }}; modalAberta = 'removerAdmin'; menuOpen = false"
+                                                        class="w-full text-left px-4 py-2 hover:bg-amber-50/60 flex items-center gap-2.5 text-amber-700 cursor-pointer"
+                                                    >
+                                                        <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"/></svg>
+                                                        Remover como admin
+                                                    </button>
+                                                @else
+                                                    <!-- Tornar Administrador (para Colaboradores) -->
+                                                    <button 
+                                                        type="button" 
+                                                        @click="usuarioSelecionado = {{ json_encode($user) }}; modalAberta = 'tornarAdmin'; menuOpen = false"
+                                                        class="w-full text-left px-4 py-2 hover:bg-blue-50/60 flex items-center gap-2.5 text-blue-700 cursor-pointer"
+                                                    >
+                                                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                                                        Tornar administrador
+                                                    </button>
+                                                @endif
+                                            </div>
+
+                                            <!-- Seção 3: Ativação / Desativação de Usuário -->
+                                            <div class="py-1">
+                                                @if($statusNormalized === 'inativo')
+                                                    <!-- Reativar Usuário -->
+                                                    <button 
+                                                        type="button" 
+                                                        @click="usuarioSelecionado = {{ json_encode($user) }}; modalAberta = 'reativar'; menuOpen = false"
+                                                        class="w-full text-left px-4 py-2 hover:bg-emerald-50/60 flex items-center gap-2.5 text-emerald-700 font-medium cursor-pointer"
+                                                    >
+                                                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                        Reativar usuário
+                                                    </button>
+                                                @else
+                                                    <!-- Desativar Usuário -->
+                                                    <button 
+                                                        type="button" 
+                                                        @click="usuarioSelecionado = {{ json_encode($user) }}; modalAberta = 'desativar'; menuOpen = false"
+                                                        class="w-full text-left px-4 py-2 hover:bg-rose-50/60 flex items-center gap-2.5 text-rose-600 cursor-pointer"
+                                                    >
+                                                        <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                                                        Desativar usuário
+                                                    </button>
+                                                @endif
+                                            </div>
+
+                                            <!-- Seção 4: Exclusão Permanente -->
+                                            <div class="py-1">
+                                                <button 
+                                                    type="button" 
+                                                    @click="usuarioSelecionado = {{ json_encode($user) }}; modalAberta = 'removerUsuario'; menuOpen = false"
+                                                    class="w-full text-left px-4 py-2 hover:bg-rose-50 flex items-center gap-2.5 text-rose-700 font-semibold cursor-pointer"
+                                                >
+                                                    <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                    Remover usuário
+                                                </button>
+                                            </div>
+                                        </div>
                                 </td>
                             </tr>
                         @empty
@@ -361,7 +412,7 @@
             <!-- Rodapé da Tabela / Paginação Dinâmica -->
             <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
                 <span class="text-xs text-slate-500">
-                    Mostrando {{ $usuarios->firstItem() ?? 0 }} a {{ $usuarios->lastItem() ?? 0 }} de {{ $usuarios->total() }} usuários
+                    Mostrando {{ $usuarios->lastItem() ?? 0 }} de {{ $usuarios->total() }} usuários
                 </span>
                 <div>
                     {{ $usuarios->links() }}

@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminUsuarioController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\AutenticacaoController;
 use App\Http\Controllers\ConviteController;
+use App\Http\Controllers\MatriculaController;
 use Database\Seeders\CriancaDataSeeder;
 use Illuminate\Support\Facades\Route;
 
@@ -55,7 +56,22 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [UsuarioController::class, 'deletar'])->name('destroy');
     });
 
+    Route::prefix('matricula')->name('matricula.')->group(function () {
+        Route::redirect('/', '/matricula/crianca');
+        Route::get('/crianca', [MatriculaController::class, 'mostrarCrianca'])->name('crianca');
+        Route::post('/crianca', [MatriculaController::class, 'salvarCrianca'])->name('crianca.salvar');
+        Route::get('/responsaveis', [MatriculaController::class, 'mostrarResponsaveis'])->name('responsaveis');
+        Route::post('/responsaveis', [MatriculaController::class, 'salvarResponsaveis'])->name('responsaveis.salvar');
+        Route::get('/endereco', [MatriculaController::class, 'mostrarEndereco'])->name('endereco');
+        Route::post('/endereco', [MatriculaController::class, 'salvarEndereco'])->name('endereco.salvar');
+        Route::get('/saude', [MatriculaController::class, 'mostrarSaude'])->name('saude');
+        Route::post('/saude', [MatriculaController::class, 'salvarSaude'])->name('saude.salvar');
+        Route::get('/autorizacoes', [MatriculaController::class, 'mostrarAutorizacoes'])->name('autorizacoes');
+        Route::post('/autorizacoes', [MatriculaController::class, 'salvarAutorizacoes'])->name('autorizacoes.salvar');
+    });
+
     Route::prefix('crianca')->name('crianca.')->group(function () {
+        Route::redirect('/cadastro', '/matricula/crianca');
         Route::get('/menu/{id}', function ($id) {
             $crianca = CriancaDataSeeder::getCriancaById($id);
 

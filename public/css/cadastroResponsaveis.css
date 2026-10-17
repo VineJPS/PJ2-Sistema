@@ -1,0 +1,184 @@
+[x-cloak] {
+    display: none !important;
+}
+
+.cadastro-wrap-largo {
+    width: min(100%, 640px);
+}
+
+.secao-card {
+    position: relative;
+    width: 100%;
+    margin-bottom: 18px;
+}
+
+.secao-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.secao-numero {
+    display: grid;
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    place-items: center;
+    border: 1px solid #cfe0ff;
+    border-radius: 50%;
+    background: #eff5ff;
+    color: #2f6fe0;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.secao-header h2 {
+    margin: 0 0 2px;
+    color: #1e293b;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.secao-header p {
+    margin: 0;
+    color: #9aa6b8;
+    font-size: 8px;
+}
+
+.bloco-item {
+    position: relative;
+    margin-bottom: 12px;
+    padding: 14px;
+    border: 1px solid #e9eef6;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.btn-remover {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    display: grid;
+    width: 18px;
+    height: 18px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #e0484b;
+    cursor: pointer;
+}
+
+.btn-remover svg {
+    width: 12px;
+    height: 12px;
+}
+
+.bloco-item .cadastro-fields {
+    padding-top: 6px;
+}
+
+.btn-adicionar {
+    display: flex;
+    width: 100%;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1px solid #e3e9f2;
+    border-radius: 9px;
+    background: #fff;
+    color: #2f6fe0;
+    font: inherit;
+    font-size: 10px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.btn-adicionar:hover {
+    background: #f6f9ff;
+}
+
+.pergunta-beneficio {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 16px 0 12px;
+}
+
+.pergunta-beneficio > span {
+    color: #273449;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.toggle-sim-nao {
+    display: flex;
+    gap: 6px;
+}
+
+.toggle-sim-nao button {
+    min-width: 48px;
+    height: 26px;
+    border: 1px solid #e6ebf2;
+    border-radius: 7px;
+    background: #fff;
+    color: #273449;
+    font: inherit;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.toggle-sim-nao button.ativo {
+    border-color: #1d4ed8;
+    background: #1d4ed8;
+    color: #fff;
+}
+
+.beneficio-campos .field-nis {
+    grid-column: span 2;
+}
+
+.beneficio-campos .field-tipo {
+    grid-column: span 2;
+}
+
+.beneficio-campos .field-valor {
+    grid-column: span 2;
+}
+
+.cadastro-wrap-largo .cadastro-actions {
+    width: 100%;
+}
+
+.cadastro-actions-split {
+    justify-content: space-between;
+}
+
+@media (max-width: 640px) {
+    .beneficio-campos .field-nis,
+    .beneficio-campos .field-tipo,
+    .beneficio-campos .field-valor {
+        grid-column: 1 / -1;
+    }
+}
+
+.aviso-erro {
+    width: 100%;
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    border: 1px solid #f2c4c4;
+    border-radius: 10px;
+    background: #fff6f6;
+    color: #b42323;
+    font-size: 10px;
+}
+
+.aviso-erro ul {
+    margin: 6px 0 0;
+    padding-left: 16px;
+}

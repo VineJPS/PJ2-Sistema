@@ -1,0 +1,141 @@
+[x-cloak] {
+    display: none !important;
+}
+
+.cadastro-wrap {
+    width: min(100%, 640px);
+}
+
+.endereco-card {
+    width: 100%;
+    padding: 20px;
+}
+
+.cadastro-actions {
+    width: 100%;
+}
+
+.cadastro-actions-split {
+    justify-content: space-between;
+}
+
+.opcional {
+    color: #9aa6b8;
+    font-weight: 400;
+}
+
+.moradia-grupo {
+    gap: 8px;
+}
+
+.rotulo-grupo {
+    color: #273449;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.moradia-linha {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    align-items: center;
+}
+
+.opcoes-moradia {
+    display: flex;
+    gap: 8px;
+}
+
+.opcao-moradia {
+    position: relative;
+    display: inline-flex;
+    height: 30px;
+    align-items: center;
+    gap: 7px;
+    padding: 0 12px;
+    border: 1px solid #e6ebf2;
+    border-radius: 8px;
+    background: #fff;
+    color: #273449;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s;
+}
+
+.opcao-moradia input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.radio-visual {
+    display: grid;
+    width: 11px;
+    height: 11px;
+    place-items: center;
+    border: 1px solid #9aa6b8;
+    border-radius: 50%;
+}
+
+.opcao-moradia.selecionada {
+    border-color: #3977e8;
+    background: #eaf2ff;
+    color: #1e3a8a;
+}
+
+.opcao-moradia.selecionada .radio-visual {
+    border-color: #1d4ed8;
+}
+
+.opcao-moradia.selecionada .radio-visual::after {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #1d4ed8;
+}
+
+.opcao-moradia:focus-within {
+    outline: 2px solid #3977e8;
+    outline-offset: 2px;
+}
+
+.aluguel-campo input {
+    width: 100%;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid #e6ebf2;
+    border-radius: 9px;
+    outline: none;
+    background: #f9fafc;
+    color: #526077;
+    font: inherit;
+    font-size: 10px;
+}
+
+.aluguel-campo input:focus {
+    border-color: #6c9df4;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgb(57 119 232 / 12%);
+}
+
+.aviso-sucesso {
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    border: 1px solid #bfe3c9;
+    border-radius: 10px;
+    background: #f1fbf4;
+    color: #1d6b3a;
+    font-size: 10px;
+}
+
+@media (max-width: 640px) {
+    .moradia-linha {
+        grid-template-columns: 1fr;
+    }
+
+    .opcoes-moradia {
+        flex-wrap: wrap;
+    }
+}

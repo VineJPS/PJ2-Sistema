@@ -4,8 +4,9 @@ use App\Http\Controllers\AdminUsuarioController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\AutenticacaoController;
 use App\Http\Controllers\ConviteController;
+use App\Http\Controllers\CriancaController;
 use App\Http\Controllers\MatriculaController;
-use Database\Seeders\CriancaDataSeeder;
+use App\Models\Crianca;
 use Illuminate\Support\Facades\Route;
 
 // Rotas públicas (Acesso para visitantes / login)
@@ -73,12 +74,22 @@ Route::middleware('auth')->group(function () {
     Route::prefix('crianca')->name('crianca.')->group(function () {
         Route::redirect('/cadastro', '/matricula/crianca');
         Route::get('/menu/{id}', function ($id) {
-            $crianca = CriancaDataSeeder::getCriancaById($id);
+            $crianca = Crianca::dadosTela($id);
 
             abort_if(!$crianca, 404, 'Criança não encontrada');
 
             return view('components.menu.menuSecoesCriancas.menuCrianca', compact('crianca'));
         })->name('menu');
+
+        Route::patch('/{crianca}/nome', [CriancaController::class, 'atualizarNome'])->name('nome');
+        Route::patch('/{crianca}/status', [CriancaController::class, 'atualizarStatus'])->name('status');
+        Route::delete('/{crianca}', [CriancaController::class, 'excluir'])->name('excluir');
+        Route::put('/{crianca}/dados', [CriancaController::class, 'atualizarDados'])->name('dados');
+        Route::put('/{crianca}/responsaveis/{responsavel}', [CriancaController::class, 'atualizarResponsavel'])->name('responsavel.atualizar');
+        Route::patch('/{crianca}/autorizacoes/permissoes', [CriancaController::class, 'atualizarPermissoes'])->name('permissoes');
+        Route::post('/{crianca}/autorizacoes/pessoas', [CriancaController::class, 'criarPessoaAutorizada'])->name('pessoas.criar');
+        Route::delete('/{crianca}/autorizacoes/pessoas/{pessoa}', [CriancaController::class, 'excluirPessoaAutorizada'])->name('pessoas.excluir');
+        Route::post('/{crianca}/assinatura', [CriancaController::class, 'atualizarAssinatura'])->name('assinatura');
 
         $secoes = ['saude', 'responsaveis', 'autorizacoes', 'relatos', 'matricula'];
 

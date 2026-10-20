@@ -1,8 +1,7 @@
 @php
-    use Database\Seeders\CriancaDataSeeder;
 
     // Puxar dados da criança do seeder
-    $crianca = CriancaDataSeeder::getCriancaById($criancaId);
+    $crianca = \App\Models\Crianca::dadosTela($criancaId);
     $dadosSaude = $crianca['saude'] ?? [];
 @endphp
 

@@ -87,12 +87,12 @@
 
                             <div class="field field-half">
                                 <label for="agua">Água</label>
-                                <input id="agua" name="agua" type="text" inputmode="numeric" placeholder="R$ 0,00" data-moeda required value="{{ $campo('agua') }}" @error('agua') aria-invalid="true" @enderror>
+                                <input id="agua" name="agua" type="text" inputmode="numeric" placeholder="R$ 0,00" data-moeda value="{{ $campo('agua') }}" @error('agua') aria-invalid="true" @enderror>
                                 @error('agua')<small class="field-error">{{ $message }}</small>@enderror
                             </div>
                             <div class="field field-half">
                                 <label for="energia">Energia</label>
-                                <input id="energia" name="energia" type="text" inputmode="numeric" placeholder="R$ 0,00" data-moeda required value="{{ $campo('energia') }}" @error('energia') aria-invalid="true" @enderror>
+                                <input id="energia" name="energia" type="text" inputmode="numeric" placeholder="R$ 0,00" data-moeda value="{{ $campo('energia') }}" @error('energia') aria-invalid="true" @enderror>
                                 @error('energia')<small class="field-error">{{ $message }}</small>@enderror
                             </div>
 
@@ -103,7 +103,7 @@
                             </div>
                             <div class="field field-half">
                                 <label for="gas">Gás</label>
-                                <input id="gas" name="gas" type="text" inputmode="numeric" placeholder="R$ 0,00" data-moeda required value="{{ $campo('gas') }}" @error('gas') aria-invalid="true" @enderror>
+                                <input id="gas" name="gas" type="text" inputmode="numeric" placeholder="R$ 0,00" data-moeda value="{{ $campo('gas') }}" @error('gas') aria-invalid="true" @enderror>
                                 @error('gas')<small class="field-error">{{ $message }}</small>@enderror
                             </div>
                         </div>

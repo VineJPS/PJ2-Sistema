@@ -1,8 +1,5 @@
 @php
-    use Database\Seeders\CriancaDataSeeder;
-    
-    // Puxar dados da criança do seeder
-    $crianca = CriancaDataSeeder::getCriancaById($criancaId);
+    $crianca = \App\Models\Crianca::dadosTela($criancaId);
     $responsaveis = $crianca['responsaveis'] ?? [];
 @endphp
 
@@ -10,7 +7,8 @@
     <link rel="stylesheet" href="{{ asset('css/responsaveisCrianca.css') }}">
 @endonce
 
-<div class="conteudoAba" x-data="responsaveisCriancaComponent({{ json_encode($responsaveis) }})">
+<div class="conteudoAba" x-data="responsaveisCriancaComponent({{ json_encode($responsaveis) }}, {{ (int) $criancaId }})">
+    <p x-show="erro" x-text="erro" style="color:#dc2626;font-size:0.85rem;margin-bottom:8px;"></p>
 
     <template x-for="(resp, index) in listaResponsaveis" :key="index">
         <div class="cardInfo">
@@ -54,12 +52,7 @@
 
             <div class="campoLinhaInteira">
                 <label class="labelCampo">Endereço residencial</label>
-                <template x-if="editingIndex === index">
-                    <input type="text" x-model="tempData.enderecoResidencial" class="inputCampo" />
-                </template>
-                <template x-if="editingIndex !== index">
-                    <p class="valorCampo" x-text="resp.enderecoResidencial"></p>
-                </template>
+                <p class="valorCampo" x-text="resp.enderecoResidencial"></p>
             </div>
 
             <div class="campoLinhaInteira">
@@ -78,8 +71,9 @@
 
 <script>
     document.addEventListener('alpine:init', () => {
-        Alpine.data('responsaveisCriancaComponent', (dadosIniciais) => ({
-            // Dados vindos direto do seeder via Blade
+        Alpine.data('responsaveisCriancaComponent', (dadosIniciais, criancaId) => ({
+            criancaId,
+            erro: '',
             listaResponsaveis: dadosIniciais || [],
 
             // Índice do card em edição (null = nenhum)
@@ -98,17 +92,30 @@
                 this.tempData = {};
             },
 
-            salvarEdicao(index) {
-                this.listaResponsaveis[index] = JSON.parse(JSON.stringify(this.tempData));
+            async salvarEdicao(index) {
+                this.erro = '';
+                const resp = this.listaResponsaveis[index];
+                const resposta = await fetch(`/crianca/${this.criancaId}/responsaveis/${resp.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': @json(csrf_token()),
+                    },
+                    body: JSON.stringify({
+                        nome: this.tempData.nome,
+                        telefone: this.tempData.telefone,
+                        enderecoComercial: this.tempData.enderecoComercial || null,
+                    }),
+                });
+                const json = await resposta.json().catch(() => ({}));
+                if (!resposta.ok) {
+                    this.erro = json.errors ? Object.values(json.errors)[0][0] : (json.message || 'Não foi possível salvar.');
+                    return;
+                }
+                this.listaResponsaveis[index] = { ...resp, ...this.tempData, ...(json.responsavel || {}) };
                 this.editingIndex = null;
                 this.tempData = {};
-
-                // Aqui você pode enviar uma requisição fetch/axios para o backend, ex:
-                // fetch(`/responsaveis/${this.listaResponsaveis[index].id}`, {
-                //     method: 'PUT',
-                //     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                //     body: JSON.stringify(this.listaResponsaveis[index])
-                // });
             }
         }));
     });

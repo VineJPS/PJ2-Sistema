@@ -7,10 +7,17 @@
 
     <link rel="stylesheet" href="{{ asset('css/menuCrianca.css') }}">
 
+    <!-- Tailwind CSS (necessário para a sidebar) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body x-cloak>
-    <div id="id-menu-crianca" class="page-container" x-data="menuCrianca()" @alpine:init="init()">
+<body x-cloak class="bg-[#f8fafc] font-sans antialiased flex h-screen overflow-hidden">
+    <x-sidebar />
+
+    <main class="flex-1 overflow-y-auto">
+    <div id="id-menu-crianca" class="page-container" x-data="menuCrianca()" @alpine:init="init()"
+        @crianca-atualizada.window="crianca.idade = $event.detail.idade">
 
         <!-- Header com as informações da criança -->
         <div class="header-perfil">
@@ -21,7 +28,7 @@
                 <div class="texto-perfil">
                     <h1 class="nome-crianca">{{ $crianca['nome'] ?? 'Criança não selecionada' }}</h1>
                     <p class="detalhes-entrada">
-                        {{ $crianca['idade'] ?? '--' }} anos · Entrou em {{ $crianca['dataEntrada'] ?? '12/02/2020' }}
+                        <span x-text="crianca.idade ?? '--'">{{ $crianca['idade'] ?? '--' }}</span> anos · Entrou em {{ $crianca['dataEntrada'] ?? '12/02/2020' }}
                     </p>
                 </div>
             </div>
@@ -129,6 +136,7 @@
             </div>
         </div>
     </div>
+    </main>
 
     <script>
         function menuCrianca() {

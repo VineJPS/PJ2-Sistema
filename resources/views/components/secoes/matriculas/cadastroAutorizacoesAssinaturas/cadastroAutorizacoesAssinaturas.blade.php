@@ -118,7 +118,7 @@
                         <div class="cadastro-fields">
                             <div class="field field-half">
                                 <label for="data-assinatura">Data da assinatura</label>
-                                <input id="data-assinatura" name="data_assinatura" type="date" max="{{ now()->toDateString() }}" required value="{{ $dataAssinatura }}" @error('data_assinatura') aria-invalid="true" @enderror>
+                                <input id="data-assinatura" name="data_assinatura" type="date" max="{{ now()->toDateString() }}" value="{{ $dataAssinatura }}" @error('data_assinatura') aria-invalid="true" @enderror>
                             </div>
                         </div>
 

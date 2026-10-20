@@ -61,12 +61,12 @@
                             </div>
                             <div class="field">
                                 <label for="cpf">CPF</label>
-                                <input id="cpf" name="cpf" type="text" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" title="000.000.000-00" required value="{{ old('cpf', $dados['cpf'] ?? '') }}" @error('cpf') aria-invalid="true" @enderror>
+                                <input id="cpf" name="cpf" type="text" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" title="000.000.000-00" value="{{ old('cpf', $dados['cpf'] ?? '') }}" @error('cpf') aria-invalid="true" @enderror>
                                 @error('cpf')<small class="field-error">{{ $message }}</small>@enderror
                             </div>
                             <div class="field">
                                 <label for="rg">RG</label>
-                                <input id="rg" name="rg" type="text" placeholder="00.000.000-0" maxlength="20" required value="{{ old('rg', $dados['rg'] ?? '') }}" @error('rg') aria-invalid="true" @enderror>
+                                <input id="rg" name="rg" type="text" placeholder="00.000.000-0" maxlength="20" value="{{ old('rg', $dados['rg'] ?? '') }}" @error('rg') aria-invalid="true" @enderror>
                                 @error('rg')<small class="field-error">{{ $message }}</small>@enderror
                             </div>
 

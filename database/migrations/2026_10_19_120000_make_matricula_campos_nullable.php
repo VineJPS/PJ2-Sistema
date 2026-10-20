@@ -12,6 +12,7 @@ return new class extends Migration
             $table->decimal('agua', 10, 2)->nullable()->change();
             $table->decimal('energia', 10, 2)->nullable()->change();
             $table->decimal('gas', 10, 2)->nullable()->change();
+            $table->decimal('alimentacao', 10, 2)->nullable()->change();
         });
 
         Schema::table('assinaturas', function (Blueprint $table) {
@@ -26,6 +27,7 @@ return new class extends Migration
             $table->decimal('agua', 10, 2)->nullable(false)->change();
             $table->decimal('energia', 10, 2)->nullable(false)->change();
             $table->decimal('gas', 10, 2)->nullable(false)->change();
+            $table->decimal('alimentacao', 10, 2)->nullable(false)->change();
         });
 
         Schema::table('assinaturas', function (Blueprint $table) {

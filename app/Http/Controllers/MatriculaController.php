@@ -2,12 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\MatriculaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class MatriculaController extends Controller
 {
+    public function __construct(private readonly MatriculaService $matriculaService)
+    {
+    }
+
     private const SESSAO_CRIANCA = 'matricula.crianca';
     private const SESSAO_RESPONSAVEIS = 'matricula.responsaveis';
     private const SESSAO_ENDERECO = 'matricula.endereco';
@@ -27,8 +33,8 @@ class MatriculaController extends Controller
             'foto' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:5120'],
             'nome' => ['required', 'string', 'max:255'],
             'data_nascimento' => ['required', 'date', 'before_or_equal:today'],
-            'cpf' => ['required', 'regex:/^\d{3}\.\d{3}\.\d{3}-\d{2}$/'],
-            'rg' => ['required', 'string', 'max:20'],
+            'cpf' => ['nullable', 'regex:/^\d{3}\.\d{3}\.\d{3}-\d{2}$/', Rule::unique('criancas', 'cpf')],
+            'rg' => ['nullable', 'string', 'max:20'],
             'escola' => ['required', 'string', 'max:255'],
             'periodo' => ['required', 'in:Matutino,Vespertino,Integral'],
             'serie' => ['required', 'string', 'max:50'],
@@ -41,6 +47,7 @@ class MatriculaController extends Controller
             'data_nascimento.date' => 'Informe uma data válida.',
             'data_nascimento.before_or_equal' => 'A data não pode ser futura.',
             'cpf.regex' => 'Informe o CPF no formato 000.000.000-00.',
+            'cpf.unique' => 'Já existe uma criança cadastrada com este CPF.',
             'periodo.in' => 'Selecione um período válido.',
             'turma_betel.in' => 'Selecione uma turma válida.',
         ]);
@@ -159,10 +166,10 @@ class MatriculaController extends Controller
             'ponto_referencia' => ['nullable', 'string', 'max:255'],
             'tipo_moradia' => ['required', 'in:Própria,Cedida,Alugada'],
             'valor_aluguel' => ['required_if:tipo_moradia,Alugada', 'nullable', 'string', 'max:20'],
-            'agua' => ['required', 'string', 'max:20'],
-            'energia' => ['required', 'string', 'max:20'],
+            'agua' => ['nullable', 'string', 'max:20'],
+            'energia' => ['nullable', 'string', 'max:20'],
             'alimentacao' => ['required', 'string', 'max:20'],
-            'gas' => ['required', 'string', 'max:20'],
+            'gas' => ['nullable', 'string', 'max:20'],
         ], [
             'required' => 'Preencha este campo.',
             'required_if' => 'Preencha este campo.',
@@ -232,8 +239,8 @@ class MatriculaController extends Controller
             'autorizados.*.parentesco' => ['required', 'string', 'max:100'],
             'autorizados.*.telefone' => ['required', 'regex:/^\(\d{2}\) \d{4,5}-\d{4}$/'],
             'termo_aceito' => ['accepted'],
-            'data_assinatura' => ['required', 'date', 'before_or_equal:today'],
-            'assinatura' => [$assinaturaAnterior ? 'nullable' : 'required', 'image', 'mimes:png,jpg,jpeg', 'max:5120'],
+            'data_assinatura' => ['nullable', 'date', 'before_or_equal:today'],
+            'assinatura' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:5120'],
         ], [
             'required' => 'Preencha este campo.',
             'termo_aceito.accepted' => 'É necessário aceitar o termo de compromisso.',
@@ -259,7 +266,16 @@ class MatriculaController extends Controller
             ? $request->file('assinatura')->store('matriculas/assinaturas', 'public')
             : $assinaturaAnterior;
 
-        // Sem banco por enquanto: encerra o fluxo limpando os dados da sessão
+        $pendencias = $this->calcularPendencias($dados);
+
+        $this->matriculaService->registrar(
+            session(self::SESSAO_CRIANCA),
+            session(self::SESSAO_RESPONSAVEIS),
+            session(self::SESSAO_ENDERECO),
+            $dados,
+            $pendencias,
+        );
+
         session()->forget([
             self::SESSAO_CRIANCA,
             self::SESSAO_RESPONSAVEIS,
@@ -268,8 +284,71 @@ class MatriculaController extends Controller
             self::SESSAO_AUTORIZACOES,
         ]);
 
-        return redirect()->route('home')
-            ->with('success', 'Cadastro concluído com sucesso!');
+        $mensagem = $pendencias
+            ? 'Cadastro concluído com status Pendente. Falta: ' . implode(', ', $pendencias) . '.'
+            : 'Cadastro concluído com sucesso!';
+
+        return redirect()->route('home')->with('success', $mensagem);
+    }
+
+    /** Campos opcionais não preenchidos deixam a criança com status Pendente. */
+    private function calcularPendencias(array $autorizacoes): array
+    {
+        $crianca = session(self::SESSAO_CRIANCA, []);
+        $responsaveis = session(self::SESSAO_RESPONSAVEIS . '.responsaveis', []);
+        $endereco = session(self::SESSAO_ENDERECO, []);
+        $pendencias = [];
+
+        $faltam = fn (array $origem, array $campos) => array_filter(
+            $campos,
+            fn ($campo) => blank($origem[$campo] ?? null)
+        );
+
+        if (blank($crianca['foto_path'] ?? null)) {
+            $pendencias[] = 'foto';
+        }
+        if ($faltam($crianca, ['cpf'])) {
+            $pendencias[] = 'CPF';
+        }
+        if ($faltam($crianca, ['rg'])) {
+            $pendencias[] = 'RG';
+        }
+
+        $camposResponsavel = [
+            'escolaridade' => 'escolaridade',
+            'profissao' => 'profissão',
+            'religiao' => 'religião',
+            'salario' => 'salário',
+        ];
+        foreach ($camposResponsavel as $campo => $rotulo) {
+            foreach ($responsaveis as $responsavel) {
+                if (blank($responsavel[$campo] ?? null)) {
+                    $pendencias[] = "$rotulo do responsável";
+                    break;
+                }
+            }
+        }
+
+        $camposEndereco = [
+            'ponto_referencia' => 'ponto de referência',
+            'agua' => 'gasto com água',
+            'energia' => 'gasto com energia',
+            'gas' => 'gasto com gás',
+        ];
+        foreach ($camposEndereco as $campo => $rotulo) {
+            if (blank($endereco[$campo] ?? null)) {
+                $pendencias[] = $rotulo;
+            }
+        }
+
+        if (blank($autorizacoes['data_assinatura'] ?? null)) {
+            $pendencias[] = 'data da assinatura';
+        }
+        if (blank($autorizacoes['assinatura_path'] ?? null)) {
+            $pendencias[] = 'arquivo de assinatura';
+        }
+
+        return $pendencias;
     }
 
     private function etapaPendente(array $etapas): ?RedirectResponse

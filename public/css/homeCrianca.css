@@ -188,6 +188,7 @@
 }
 
 .cardCrianca {
+  position: relative;
   background-color: #ffffff;
   border-radius: 18px;
   padding: 1rem 1.25rem;
@@ -333,4 +334,9 @@
   .gridCriancas {
     grid-template-columns: 1fr;
   }
+}
+.menuCrianca {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
 }

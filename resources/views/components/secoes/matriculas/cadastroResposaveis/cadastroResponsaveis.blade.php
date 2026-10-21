@@ -80,7 +80,7 @@
 
                                     <div class="field field-half">
                                         <label :for="'resp-telefone-' + item.id">Telefone</label>
-                                        <input :id="'resp-telefone-' + item.id" :name="`responsaveis[${i}][telefone]`" type="tel" placeholder="(00) 00000-0000" required x-model="item.telefone" @input="item.telefone = mascararTelefone($event.target.value)">
+                                        <input :id="'resp-telefone-' + item.id" :name="`responsaveis[${i}][telefone]`" type="tel" inputmode="tel" placeholder="(15) 91234-5678" required x-model="item.telefone" x-init="item.telefone = mascararTelefone(item.telefone || ''); $el.value = item.telefone" @input="$event.target.value = item.telefone = mascararTelefone($event.target.value)">
                                     </div>
                                     <div class="field field-half">
                                         <label :for="'resp-escolaridade-' + item.id">Grau de escolaridade</label>
@@ -252,7 +252,9 @@
                     },
 
                     mascararTelefone(valor) {
-                        const d = soDigitos(valor).slice(0, 11);
+                        let d = soDigitos(valor).replace(/^0+/, '');
+                        if (d.length > 11 && d.startsWith('55')) d = d.slice(2);
+                        d = d.slice(0, 11);
                         if (d.length <= 2) return d ? '(' + d : '';
                         if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
                         if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;

@@ -98,7 +98,7 @@
 
                             <div class="field field-half">
                                 <label for="alimentacao">Alimentação</label>
-                                <input id="alimentacao" name="alimentacao" type="text" inputmode="numeric" placeholder="R$ 0,00" data-moeda required value="{{ $campo('alimentacao') }}" @error('alimentacao') aria-invalid="true" @enderror>
+                                <input id="alimentacao" name="alimentacao" type="text" inputmode="numeric" placeholder="R$ 0,00" data-moeda value="{{ $campo('alimentacao') }}" @error('alimentacao') aria-invalid="true" @enderror>
                                 @error('alimentacao')<small class="field-error">{{ $message }}</small>@enderror
                             </div>
                             <div class="field field-half">

@@ -81,6 +81,28 @@
   background-color: #d8832a;
 }
 
+.avatar-circle {
+  box-sizing: border-box;
+}
+
+.avatar-com-foto {
+  border: 3px solid transparent;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.avatar-foto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.avatar-com-foto.avatar-circle-ativo { border-color: #3eb070; }
+.avatar-com-foto.avatar-circle-inativo { border-color: #b2b8be; }
+.avatar-com-foto.avatar-circle-alergico { border-color: #e7a058; }
+
 .texto-perfil {
   display: flex;
   flex-direction: column;

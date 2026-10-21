@@ -61,6 +61,7 @@ Route::middleware('auth')->group(function () {
         Route::redirect('/', '/matricula/crianca');
         Route::get('/crianca', [MatriculaController::class, 'mostrarCrianca'])->name('crianca');
         Route::post('/crianca', [MatriculaController::class, 'salvarCrianca'])->name('crianca.salvar');
+        Route::get('/crianca/foto', [MatriculaController::class, 'fotoRascunho'])->name('crianca.foto');
         Route::get('/responsaveis', [MatriculaController::class, 'mostrarResponsaveis'])->name('responsaveis');
         Route::post('/responsaveis', [MatriculaController::class, 'salvarResponsaveis'])->name('responsaveis.salvar');
         Route::get('/endereco', [MatriculaController::class, 'mostrarEndereco'])->name('endereco');
@@ -86,10 +87,14 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{crianca}', [CriancaController::class, 'excluir'])->name('excluir');
         Route::put('/{crianca}/dados', [CriancaController::class, 'atualizarDados'])->name('dados');
         Route::put('/{crianca}/responsaveis/{responsavel}', [CriancaController::class, 'atualizarResponsavel'])->name('responsavel.atualizar');
+        Route::put('/{crianca}/ambiente', [CriancaController::class, 'atualizarAmbiente'])->name('ambiente');
         Route::patch('/{crianca}/autorizacoes/permissoes', [CriancaController::class, 'atualizarPermissoes'])->name('permissoes');
         Route::post('/{crianca}/autorizacoes/pessoas', [CriancaController::class, 'criarPessoaAutorizada'])->name('pessoas.criar');
         Route::delete('/{crianca}/autorizacoes/pessoas/{pessoa}', [CriancaController::class, 'excluirPessoaAutorizada'])->name('pessoas.excluir');
         Route::post('/{crianca}/assinatura', [CriancaController::class, 'atualizarAssinatura'])->name('assinatura');
+        Route::get('/{crianca}/foto', [CriancaController::class, 'foto'])->name('foto');
+        Route::post('/{crianca}/foto', [CriancaController::class, 'atualizarFoto'])->name('foto.atualizar');
+        Route::delete('/{crianca}/foto', [CriancaController::class, 'excluirFoto'])->name('foto.excluir');
 
         $secoes = ['saude', 'responsaveis', 'autorizacoes', 'relatos', 'matricula'];
 

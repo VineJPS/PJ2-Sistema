@@ -33,19 +33,13 @@
         <div class="headerGrupo">
             <h2 class="tituloGrupo">Quem pode buscar</h2>
             <div class="wrapperBotoesAdicionar">
-                <button type="button" class="btnAdicionar" @click="formAberto = !formAberto">
+                <button type="button" class="btnAdicionar" @click="abrirForm()">
                     + Novo Autorizado
                 </button>
             </div>
         </div>
 
-        <div class="cardPessoa" x-show="formAberto" x-cloak style="display:none; gap:8px; flex-wrap:wrap;">
-            <input type="text" x-model="novo.nome" placeholder="Nome" class="inputCampo" />
-            <input type="text" x-model="novo.parentesco" placeholder="Parentesco" class="inputCampo" />
-            <input type="text" x-model="novo.telefone" placeholder="(00) 00000-0000" class="inputCampo" />
-            <button type="button" class="btnSalvar" @click="adicionar()">Salvar</button>
-            <button type="button" class="btnCancelar" @click="formAberto = false">X</button>
-        </div>
+        @include('components.modal.modalAutorizacoes.novoAutorizado')
 
         <div class="listaPessoas">
             <template x-for="pessoa in pessoas" :key="pessoa.id">
@@ -64,26 +58,7 @@
         </div>
     </div>
 
-    <div x-show="removendo" x-cloak style="display:none;" class="modalOverlay"
-        @keydown.escape.window="removendo = null">
-        <div @click.away="removendo = null" class="modalBox">
-            <button type="button" @click="removendo = null" class="modalFechar" aria-label="Fechar">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-            <h3 class="modalTitulo">Remover autorizado</h3>
-            <p class="modalTexto">
-                Essa pessoa deixa de poder buscar a criança (não pode ser desfeita).
-            </p>
-            <div class="modalAfetado">
-                <p class="modalAfetadoNome" x-text="removendo ? removendo.nome : ''"></p>
-                <p class="modalAfetadoSub" x-text="removendo ? removendo.parentesco : ''"></p>
-            </div>
-            <div class="modalAcoes">
-                <button type="button" @click="removendo = null" class="modalBtnCancelar">Cancelar</button>
-                <button type="button" @click="excluir(removendo)" class="modalBtnRemover">Remover</button>
-            </div>
-        </div>
-    </div>
+    @include('components.modal.modalAutorizacoes.removerAutorizado')
 
     <div class="secaoGrupo">
         <h2 class="tituloGrupo">
@@ -109,6 +84,7 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('autorizacoesCriancaComponent', (dados, criancaId) => ({
             erro: '',
+            erroForm: '',
             formAberto: false,
             removendo: null,
             permissoes: dados.autorizacao_permissoes || [],
@@ -140,11 +116,40 @@
             },
 
             async adicionar() {
+                this.erroForm = '';
+                if (!this.novo.nome.trim() || !this.novo.parentesco.trim()) {
+                    this.erroForm = 'Preencha nome e parentesco.';
+                    return;
+                }
+                if (!/^\([1-9]\d\) (?:9\d{4}|[2-5]\d{3})-\d{4}$/.test(this.novo.telefone)) {
+                    this.erroForm = 'Informe um telefone válido, ex: (15) 91234-5678.';
+                    return;
+                }
                 const r = await this.enviar('POST', 'autorizacoes/pessoas', this.novo);
-                if (!r) return;
+                if (!r) {
+                    this.erroForm = this.erro;
+                    this.erro = '';
+                    return;
+                }
                 this.pessoas.push(r);
-                this.novo = { nome: '', parentesco: '', telefone: '' };
                 this.formAberto = false;
+            },
+
+            abrirForm() {
+                this.novo = { nome: '', parentesco: '', telefone: '' };
+                this.erroForm = '';
+                this.formAberto = true;
+            },
+
+            mascararTelefone(valor) {
+                let d = valor.replace(/\D/g, '').replace(/^0+/, '');
+                if (d.length > 11 && d.startsWith('55')) d = d.slice(2);
+                d = d.slice(0, 11);
+                if (d.length > 2 && d[2] !== '9') d = d.slice(0, 10);
+                if (d.length <= 2) return d.length ? `(${d}` : '';
+                if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+                if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+                return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
             },
 
             async excluir(pessoa) {

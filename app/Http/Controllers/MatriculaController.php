@@ -27,6 +27,16 @@ class MatriculaController extends Controller
         ]);
     }
 
+    public function fotoRascunho()
+    {
+        $caminho = session(self::SESSAO_CRIANCA . '.foto_path');
+        $disco = \Illuminate\Support\Facades\Storage::disk('public');
+
+        abort_unless($caminho && $disco->exists($caminho), 404);
+
+        return $disco->response($caminho);
+    }
+
     public function salvarCrianca(Request $request): RedirectResponse
     {
         $dados = $request->validate([
@@ -54,10 +64,20 @@ class MatriculaController extends Controller
 
         unset($dados['foto']);
 
+        $fotoAtual = session(self::SESSAO_CRIANCA . '.foto_path');
+
         if ($request->hasFile('foto')) {
             $dados['foto_path'] = $request->file('foto')->store('matriculas/fotos', 'public');
+            if ($fotoAtual) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($fotoAtual);
+            }
+        } elseif ($request->boolean('remover_foto')) {
+            if ($fotoAtual) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($fotoAtual);
+            }
+            $dados['foto_path'] = null;
         } else {
-            $dados['foto_path'] = session(self::SESSAO_CRIANCA . '.foto_path');
+            $dados['foto_path'] = $fotoAtual;
         }
 
         session([self::SESSAO_CRIANCA => $dados]);
@@ -90,11 +110,13 @@ class MatriculaController extends Controller
                 ->all(),
         ]);
 
+        CriancaController::normalizarTelefones($request, 'responsaveis');
+
         $dados = $request->validate([
             'responsaveis' => ['required', 'array', 'min:1'],
             'responsaveis.*.nome' => ['required', 'string', 'max:255'],
             'responsaveis.*.parentesco' => ['required', 'string', 'max:100'],
-            'responsaveis.*.telefone' => ['required', 'regex:/^\(\d{2}\) \d{4,5}-\d{4}$/'],
+            'responsaveis.*.telefone' => ['required', 'regex:' . CriancaController::TELEFONE_REGEX],
             'responsaveis.*.escolaridade' => ['nullable', 'string', 'max:100'],
             'responsaveis.*.salario' => ['nullable', 'string', 'max:20'],
             'responsaveis.*.profissao' => ['nullable', 'string', 'max:100'],
@@ -115,7 +137,7 @@ class MatriculaController extends Controller
             'required' => 'Preencha este campo.',
             'required_if' => 'Preencha este campo.',
             'responsaveis.required' => 'Informe ao menos um responsável.',
-            '*.telefone.regex' => 'Informe o telefone no formato (00) 00000-0000.',
+            'responsaveis.*.telefone.regex' => 'Informe um telefone válido, ex: (15) 91234-5678.',
             'beneficio_nis.regex' => 'Informe o NIS no formato 000.00000.00-0.',
             '*.data_nascimento.date' => 'Informe uma data válida.',
             '*.data_nascimento.before_or_equal' => 'A data não pode ser futura.',
@@ -168,7 +190,7 @@ class MatriculaController extends Controller
             'valor_aluguel' => ['required_if:tipo_moradia,Alugada', 'nullable', 'string', 'max:20'],
             'agua' => ['nullable', 'string', 'max:20'],
             'energia' => ['nullable', 'string', 'max:20'],
-            'alimentacao' => ['required', 'string', 'max:20'],
+            'alimentacao' => ['nullable', 'string', 'max:20'],
             'gas' => ['nullable', 'string', 'max:20'],
         ], [
             'required' => 'Preencha este campo.',
@@ -231,13 +253,15 @@ class MatriculaController extends Controller
 
         $assinaturaAnterior = session(self::SESSAO_AUTORIZACOES . '.assinatura_path');
 
+        CriancaController::normalizarTelefones($request, 'autorizados');
+
         $dados = $request->validate([
             'autoriza_frequencia' => ['boolean'],
             'sai_sozinho' => ['boolean'],
             'autorizados' => ['array'],
             'autorizados.*.nome' => ['required', 'string', 'max:255'],
             'autorizados.*.parentesco' => ['required', 'string', 'max:100'],
-            'autorizados.*.telefone' => ['required', 'regex:/^\(\d{2}\) \d{4,5}-\d{4}$/'],
+            'autorizados.*.telefone' => ['required', 'regex:' . CriancaController::TELEFONE_REGEX],
             'termo_aceito' => ['accepted'],
             'data_assinatura' => ['nullable', 'date', 'before_or_equal:today'],
             'assinatura' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:5120'],
@@ -250,7 +274,7 @@ class MatriculaController extends Controller
             'assinatura.image' => 'Envie uma imagem PNG ou JPG.',
             'assinatura.mimes' => 'Envie uma imagem PNG ou JPG.',
             'assinatura.max' => 'A assinatura deve ter no máximo 5MB.',
-            '*.telefone.regex' => 'Informe o telefone no formato (00) 00000-0000.',
+            'autorizados.*.telefone.regex' => 'Informe um telefone válido, ex: (15) 91234-5678.',
         ]);
 
         // Sem permissão para sair sozinha, ao menos uma pessoa autorizada é obrigatória
@@ -285,7 +309,7 @@ class MatriculaController extends Controller
         ]);
 
         $mensagem = $pendencias
-            ? 'Cadastro concluído com status Pendente. Falta: ' . implode(', ', $pendencias) . '.'
+            ? 'Cadastro concluído com status Pendente.'
             : 'Cadastro concluído com sucesso!';
 
         return redirect()->route('home')->with('success', $mensagem);
@@ -333,6 +357,7 @@ class MatriculaController extends Controller
             'ponto_referencia' => 'ponto de referência',
             'agua' => 'gasto com água',
             'energia' => 'gasto com energia',
+            'alimentacao' => 'gasto com alimentação',
             'gas' => 'gasto com gás',
         ];
         foreach ($camposEndereco as $campo => $rotulo) {

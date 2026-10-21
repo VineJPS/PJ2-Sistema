@@ -90,7 +90,7 @@
                                     </div>
                                     <div class="field field-half">
                                         <label :for="'aut-telefone-' + item.id">Telefone</label>
-                                        <input :id="'aut-telefone-' + item.id" :name="`autorizados[${i}][telefone]`" type="tel" placeholder="(00) 00000-0000" required x-model="item.telefone" @input="item.telefone = mascararTelefone($event.target.value)">
+                                        <input :id="'aut-telefone-' + item.id" :name="`autorizados[${i}][telefone]`" type="tel" inputmode="tel" placeholder="(15) 91234-5678" required x-model="item.telefone" x-init="item.telefone = mascararTelefone(item.telefone || ''); $el.value = item.telefone" @input="$event.target.value = item.telefone = mascararTelefone($event.target.value)">
                                     </div>
                                 </div>
                             </div>
@@ -170,7 +170,9 @@
                     },
 
                     mascararTelefone(valor) {
-                        const d = valor.replace(/\D/g, '').slice(0, 11);
+                        let d = valor.replace(/\D/g, '').replace(/^0+/, '');
+                        if (d.length > 11 && d.startsWith('55')) d = d.slice(2);
+                        d = d.slice(0, 11);
                         if (d.length <= 2) return d ? '(' + d : '';
                         if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
                         if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;

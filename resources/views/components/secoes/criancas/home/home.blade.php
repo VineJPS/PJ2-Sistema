@@ -27,7 +27,7 @@
             x-transition:leave-start="opacity-100 transform translate-y-0"
             x-transition:leave-end="opacity-0 transform -translate-y-2"
             role="status"
-            class="fixed top-6 right-6 z-50 max-w-sm p-4 bg-green-50 border border-green-200 text-green-700 text-sm font-medium rounded-xl flex items-center justify-between gap-3 shadow-lg">
+            class="fixed top-6 right-6 left-[19.5rem] z-50 p-4 bg-green-50 border border-green-200 text-green-700 text-sm font-medium rounded-xl flex items-center justify-between gap-3 shadow-lg">
             <div class="flex items-center gap-2">
                 <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -173,62 +173,10 @@
              }">
 
             <!-- Modal de edição do nome -->
-            <div x-show="editando" x-cloak style="display: none;"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4"
-                @keydown.escape.window="editando = null">
-                <div @click.away="editando = null"
-                    class="bg-white w-full max-w-[520px] rounded-[24px] shadow-2xl border border-slate-100 p-8 relative">
-                    <button type="button" @click="editando = null"
-                        class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-
-                    <h3 class="text-xl font-bold text-slate-900 mb-1">Editar criança</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed mb-6">Atualize o nome desta criança.</p>
-
-                    <form @submit.prevent="salvarNome()" class="space-y-4">
-                        <div>
-                            <label for="novo-nome" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Nome completo</label>
-                            <input id="novo-nome" type="text" x-model="novoNome" maxlength="150" required
-                                placeholder="Nome da criança"
-                                class="w-full bg-[#fafbfd] border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-600 transition-colors" />
-                            <p class="text-xs text-red-600 mt-2" x-text="erroNome" x-show="erroNome"></p>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4 pt-4">
-                            <button type="button" @click="editando = null"
-                                class="w-full py-3 px-4 rounded-xl border border-slate-200 font-semibold text-slate-700 hover:bg-slate-50 transition-colors text-sm cursor-pointer">Cancelar</button>
-                            <button type="submit"
-                                class="w-full py-3 px-4 rounded-xl bg-[#2563eb] hover:bg-blue-700 text-white font-semibold transition-colors text-sm shadow-sm cursor-pointer">Salvar alterações</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            @include('components.modal.modalCriancas.editarCrianca')
 
             <!-- Modal de remoção -->
-            <div x-show="removendo" x-cloak style="display: none;"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4"
-                @keydown.escape.window="removendo = null">
-                <div @click.away="removendo = null"
-                    class="bg-white w-full max-w-[500px] rounded-[24px] shadow-2xl border border-slate-100 p-8 relative">
-                    <button type="button" @click="removendo = null"
-                        class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-
-                    <h3 class="text-xl font-bold text-slate-900 mb-2">Remover criança</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed mb-6">
-                        Essa ação é permanente. A matrícula e todos os dados vinculados serão excluídos (não pode ser desfeita).
-                    </p>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <button type="button" @click="removendo = null"
-                            class="w-full py-3.5 px-4 rounded-xl border border-slate-200 font-semibold text-slate-700 hover:bg-slate-50 transition-colors text-sm cursor-pointer">Cancelar</button>
-                        <button type="button" @click="confirmarRemocao()"
-                            class="w-full py-3.5 px-4 rounded-xl bg-[#b91c1c] hover:bg-red-800 text-white font-semibold transition-colors text-sm shadow-sm cursor-pointer">Remover</button>
-                    </div>
-                </div>
-            </div>
+            @include('components.modal.modalCriancas.removerCrianca')
 
             <!-- Toast de erro -->
             <div x-show="erroGeral" x-cloak style="display: none;" role="alert"
@@ -276,8 +224,11 @@
                         @keydown.enter="abrirDetalhes(crianca.id)"
                         @keydown.space.prevent="abrirDetalhes(crianca.id)"
                     >
-                        <div class="avatarCircle">
-                            <div class="avatarIcon"
+                        <div class="avatarCircle" :class="{ 'comFoto': crianca.foto }">
+                            <template x-if="crianca.foto">
+                                <img :src="crianca.foto" :alt="`Foto de ${crianca.nome}`" class="avatarFoto" loading="lazy" />
+                            </template>
+                            <div class="avatarIcon" x-show="!crianca.foto"
                                  :class="{
                                     'iconAtivo': crianca.status === 'Ativo',
                                     'iconInativo': crianca.status === 'Inativo',

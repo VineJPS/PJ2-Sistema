@@ -17,13 +17,16 @@
 
     <main class="flex-1 overflow-y-auto">
     <div id="id-menu-crianca" class="page-container" x-data="menuCrianca()" @alpine:init="init()"
-        @crianca-atualizada.window="crianca.idade = $event.detail.idade">
+        @crianca-atualizada.window="Object.assign(crianca, $event.detail)">
 
         <!-- Header com as informações da criança -->
         <div class="header-perfil">
             <div class="info-principal">
-                <div class="avatar-circle" :class="getAvatarCircleClass()">
-                    <div class="avatar-icon" :class="getStatusIconClass()"></div>
+                <div class="avatar-circle" :class="[getAvatarCircleClass(), crianca.foto ? 'avatar-com-foto' : '']">
+                    <template x-if="crianca.foto">
+                        <img :src="crianca.foto" alt="Foto da criança" class="avatar-foto">
+                    </template>
+                    <div class="avatar-icon" x-show="!crianca.foto" :class="getStatusIconClass()"></div>
                 </div>
                 <div class="texto-perfil">
                     <h1 class="nome-crianca">{{ $crianca['nome'] ?? 'Criança não selecionada' }}</h1>

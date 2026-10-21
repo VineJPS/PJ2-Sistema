@@ -30,12 +30,16 @@
                 <form class="cadastro-form" method="POST" action="{{ route('matricula.crianca.salvar') }}" enctype="multipart/form-data" aria-label="Dados da criança">
                     @csrf
                     <section class="cadastro-card">
+                        @php $temFoto = (bool) session('matricula.crianca.foto_path'); @endphp
+                        <div class="foto-linha">
                         <label class="foto-upload" for="foto-crianca">
-                            <span class="foto-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none">
+                            <span class="foto-icon @if($temFoto) foto-icon-ativa @endif" id="foto-icon">
+                                <svg viewBox="0 0 24 24" fill="none" id="foto-svg" @if($temFoto) style="display:none" @endif aria-hidden="true">
                                     <path d="M4.5 8.5h3l1.4-2h6.2l1.4 2h3A1.5 1.5 0 0 1 21 10v8a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18v-8a1.5 1.5 0 0 1 1.5-1.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
                                     <circle cx="12" cy="13.5" r="3" stroke="currentColor" stroke-width="1.5"/>
                                 </svg>
+                                <img id="foto-preview" class="foto-preview" alt="Foto da criança"
+                                    @if($temFoto) src="{{ route('matricula.crianca.foto') }}?v={{ time() }}" @else style="display:none" @endif>
                             </span>
                             <span class="foto-copy">
                                 <strong id="foto-nome">Foto da criança</strong>
@@ -43,6 +47,13 @@
                             </span>
                             <input id="foto-crianca" name="foto" type="file" accept="image/png,image/jpeg">
                         </label>
+                        <input type="hidden" name="remover_foto" id="remover-foto" value="0">
+                        <button type="button" id="foto-remover" class="foto-remover" aria-label="Remover foto" title="Remover foto" @if(!$temFoto) disabled @endif>
+                            <svg viewBox="0 0 24 24" fill="none" width="18" height="18" aria-hidden="true">
+                                <path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-12M9 7V4h6v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        </div>
                         @error('foto')
                             <small class="field-error foto-error">{{ $message }}</small>
                         @enderror
@@ -125,11 +136,34 @@
                 .replace(/\.(\d{3})(\d)/, '.$1-$2');
         });
 
-        document.getElementById('foto-crianca').addEventListener('change', function () {
+        const fotoInput = document.getElementById('foto-crianca');
+        const fotoPreview = document.getElementById('foto-preview');
+        const fotoSvg = document.getElementById('foto-svg');
+        const fotoIcon = document.getElementById('foto-icon');
+        const fotoRemover = document.getElementById('foto-remover');
+
+        fotoInput.addEventListener('change', function () {
             const file = this.files[0];
             if (!file) return;
 
             document.getElementById('foto-nome').textContent = file.name;
+            document.getElementById('remover-foto').value = '0';
+            fotoPreview.src = URL.createObjectURL(file);
+            fotoPreview.style.display = 'block';
+            fotoSvg.style.display = 'none';
+            fotoIcon.classList.add('foto-icon-ativa');
+            fotoRemover.disabled = false;
+        });
+
+        fotoRemover.addEventListener('click', function () {
+            fotoInput.value = '';
+            document.getElementById('foto-nome').textContent = 'Foto da criança';
+            document.getElementById('remover-foto').value = '1';
+            fotoPreview.removeAttribute('src');
+            fotoPreview.style.display = 'none';
+            fotoSvg.style.display = '';
+            fotoIcon.classList.remove('foto-icon-ativa');
+            this.disabled = true;
         });
     </script>
 </body>

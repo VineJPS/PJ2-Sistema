@@ -34,7 +34,7 @@ class MatriculaService
                 'valor_aluguel' => $this->moeda($endereco['valor_aluguel'] ?? null),
                 'agua' => $this->moeda($endereco['agua'] ?? null),
                 'energia' => $this->moeda($endereco['energia'] ?? null),
-                'alimentacao' => $this->moeda($endereco['alimentacao'] ?? null) ?? 0,
+                'alimentacao' => $this->moeda($endereco['alimentacao'] ?? null),
                 'gas' => $this->moeda($endereco['gas'] ?? null),
             ]);
 

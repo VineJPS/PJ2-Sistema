@@ -272,6 +272,7 @@
 }
 
 .modalBtnCancelar,
+.modalBtnSalvar,
 .modalBtnRemover {
   padding: 14px 16px;
   border-radius: 12px;
@@ -295,3 +296,42 @@
 }
 
 .modalBtnRemover:hover { background: #991b1b; }
+
+.modalBtnSalvar {
+  background: #2563eb;
+  border: none;
+  color: #ffffff;
+}
+
+.modalBtnSalvar:hover { background: #1d4ed8; }
+
+.modalCampo {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.modalCampo span {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 4px;
+}
+
+.modalInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 14px;
+  outline: none;
+}
+
+.modalInput:focus { border-color: #2563eb; }
+
+.modalErro {
+  color: #dc2626;
+  font-size: 13px;
+  margin: 0 0 12px;
+}

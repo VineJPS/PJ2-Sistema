@@ -1,13 +1,15 @@
 @php
     $crianca = \App\Models\Crianca::dadosTela($criancaId);
     $responsaveis = $crianca['responsaveis'] ?? [];
+    $ambiente = $crianca['ambiente'] ?? [];
 @endphp
 
 @once
     <link rel="stylesheet" href="{{ asset('css/responsaveisCrianca.css') }}">
 @endonce
 
-<div class="conteudoAba" x-data="responsaveisCriancaComponent({{ json_encode($responsaveis) }}, {{ (int) $criancaId }})">
+<div class="conteudoAba" x-data="responsaveisCriancaComponent({{ json_encode($responsaveis) }}, {{ (int) $criancaId }})"
+    @ambiente-atualizado.window="atualizarEnderecos($event.detail.enderecos)">
     <p x-show="erro" x-text="erro" style="color:#dc2626;font-size:0.85rem;margin-bottom:8px;"></p>
 
     <template x-for="(resp, index) in listaResponsaveis" :key="index">
@@ -42,7 +44,9 @@
                 <div class="campoGrupo">
                     <label class="labelCampo">Telefone</label>
                     <template x-if="editingIndex === index">
-                        <input type="text" x-model="tempData.telefone" class="inputCampo" />
+                        <input type="tel" inputmode="tel" x-model="tempData.telefone"
+                            @input="$event.target.value = tempData.telefone = mascararTelefone($event.target.value)"
+                            placeholder="(15) 91234-5678" class="inputCampo" />
                     </template>
                     <template x-if="editingIndex !== index">
                         <p class="valorCampo" x-text="resp.telefone"></p>
@@ -67,6 +71,7 @@
         </div>
     </template>
 
+    @include('components.modal.modalResponsaveis.modalAmbiente', ['criancaId' => $criancaId, 'ambiente' => $ambiente])
 </div>
 
 <script>
@@ -76,11 +81,26 @@
             erro: '',
             listaResponsaveis: dadosIniciais || [],
 
+            atualizarEnderecos(enderecos) {
+                this.listaResponsaveis.forEach(r => { if (enderecos[r.id] !== undefined) r.enderecoResidencial = enderecos[r.id]; });
+            },
+
             // Índice do card em edição (null = nenhum)
             editingIndex: null,
 
             // Cópia temporária para armazenar as alterações do card em edição
             tempData: {},
+
+            mascararTelefone(valor) {
+                let d = valor.replace(/\D/g, '').replace(/^0+/, '');
+                if (d.length > 11 && d.startsWith('55')) d = d.slice(2);
+                d = d.slice(0, 11);
+                if (d.length > 2 && d[2] !== '9') d = d.slice(0, 10);
+                if (d.length <= 2) return d.length ? `(${d}` : '';
+                if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+                if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+                return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+            },
 
             iniciarEdicao(index) {
                 this.editingIndex = index;

@@ -127,3 +127,210 @@
   font-weight: 500;
   cursor: pointer;
 }
+/* ---------- Dados do ambiente (modal) ---------- */
+.btnAmbiente {
+  position: fixed;
+  right: 32px;
+  bottom: 32px;
+  z-index: 40;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: #0266b3;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(2, 102, 179, 0.35);
+  cursor: pointer;
+}
+
+.btnAmbiente:hover { background: #02558f; }
+
+.ambOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+.ambOverlay[x-cloak] { display: none !important; }
+
+.ambBox {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 760px;
+  max-height: 90vh;
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.ambHeader {
+  padding: 28px 32px 12px;
+}
+
+.ambTitulo {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ambSub {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.ambFechar {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  border: none;
+  background: none;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.ambFechar:hover { color: #475569; }
+
+.ambCorpo {
+  overflow-y: auto;
+  padding: 8px 32px 16px;
+}
+
+.ambSecao {
+  margin-bottom: 20px;
+}
+
+.ambSecaoTitulo {
+  margin: 0 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0266b3;
+}
+
+.ambGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.ambCampo label {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.ambCampo p {
+  margin: 0;
+  min-height: 20px;
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.ambInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  background: #ffffff;
+}
+
+.ambInput:focus { border-color: #2563eb; }
+
+.ambSubtitulo {
+  margin: 12px 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.ambMembro {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 0.8fr auto;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ambMembroLeitura {
+  grid-template-columns: 1.4fr 1fr 1fr 0.8fr;
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.ambMembro button,
+.ambAdicionar {
+  border: none;
+  background: none;
+  color: #b91c1c;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.ambAdicionar { color: #0266b3; font-weight: 500; padding: 4px 0; }
+
+.ambVazio {
+  margin: 0;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.ambErro {
+  margin: 0 32px 8px;
+  font-size: 13px;
+  color: #dc2626;
+}
+
+.ambAcoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px 32px 28px;
+}
+
+.ambBtnSec,
+.ambBtnPri {
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ambBtnSec {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+}
+
+.ambBtnSec:hover { background: #f8fafc; }
+
+.ambBtnPri {
+  background: #2563eb;
+  border: none;
+  color: #ffffff;
+}
+
+.ambBtnPri:hover { background: #1d4ed8; }
+
+@media (max-width: 640px) {
+  .ambGrid { grid-template-columns: 1fr; }
+  .ambMembro, .ambMembroLeitura { grid-template-columns: 1fr 1fr; }
+}

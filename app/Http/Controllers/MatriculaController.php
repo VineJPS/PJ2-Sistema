@@ -354,7 +354,6 @@ class MatriculaController extends Controller
         }
 
         $camposEndereco = [
-            'ponto_referencia' => 'ponto de referência',
             'agua' => 'gasto com água',
             'energia' => 'gasto com energia',
             'alimentacao' => 'gasto com alimentação',

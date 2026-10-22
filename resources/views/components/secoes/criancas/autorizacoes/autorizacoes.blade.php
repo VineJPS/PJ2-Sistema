@@ -22,7 +22,6 @@
                     <button type="button" class="badgePermissao" :class="item.autorizado ? 'badgeAutorizado' : 'badgeNaoAutorizado'"
                         title="Clique para alterar" @click="alternar(item)">
                         <span x-text="item.autorizado ? 'Autorizado' : 'Não autorizado'"></span>
-                        <span aria-hidden="true">⇄</span>
                     </button>
                 </div>
                 <p class="descricaoAutorizacao" x-text="item.descricao"></p>

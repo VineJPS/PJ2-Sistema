@@ -213,7 +213,7 @@ class CriancaController extends Controller
         $dados = $request->validate([
             'nome' => ['required', 'string', 'max:150'],
             'telefone' => ['required', 'regex:' . self::TELEFONE_REGEX],
-            'enderecoComercial' => ['nullable', 'string', 'max:255'],
+            'enderecoComercial' => ['required', 'string', 'max:255'],
         ], [
             'required' => 'Preencha este campo.',
             'telefone.regex' => 'Informe um telefone válido, ex: (15) 91234-5678.',
@@ -222,7 +222,7 @@ class CriancaController extends Controller
         $responsavel->update([
             'nome' => $dados['nome'],
             'telefone' => $dados['telefone'],
-            'endereco_comercial' => $dados['enderecoComercial'] ?? null,
+            'endereco_comercial' => $dados['enderecoComercial'],
         ]);
 
         return response()->json(['ok' => true]);

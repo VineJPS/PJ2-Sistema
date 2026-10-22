@@ -98,7 +98,7 @@
 
                                     <div class="field field-half">
                                         <label :for="'resp-endereco-' + item.id">Endereço Comercial</label>
-                                        <input :id="'resp-endereco-' + item.id" :name="`responsaveis[${i}][endereco_comercial]`" type="text" placeholder="Endereço do trabalho" x-model="item.enderecoComercial">
+                                        <input :id="'resp-endereco-' + item.id" :name="`responsaveis[${i}][endereco_comercial]`" type="text" placeholder="Endereço do trabalho" required x-model="item.enderecoComercial">
                                     </div>
                                     <div class="field field-half">
                                         <label :for="'resp-religiao-' + item.id">Religião</label>

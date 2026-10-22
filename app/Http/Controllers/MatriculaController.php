@@ -120,7 +120,7 @@ class MatriculaController extends Controller
             'responsaveis.*.escolaridade' => ['nullable', 'string', 'max:100'],
             'responsaveis.*.salario' => ['nullable', 'string', 'max:20'],
             'responsaveis.*.profissao' => ['nullable', 'string', 'max:100'],
-            'responsaveis.*.endereco_comercial' => ['nullable', 'string', 'max:255'],
+            'responsaveis.*.endereco_comercial' => ['required', 'string', 'max:255'],
             'responsaveis.*.religiao' => ['nullable', 'string', 'max:100'],
             'membros' => ['nullable', 'array'],
             'membros.*.nome' => ['required', 'string', 'max:255'],

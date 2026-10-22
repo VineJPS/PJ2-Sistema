@@ -96,7 +96,7 @@
                             </div>
                         </template>
 
-                        <button type="button" class="btn-adicionar" @click="adicionarAutorizado()">
+                        <button type="button" class="btn-adicionar" :disabled="saiSozinho" :title="saiSozinho ? 'Desative a saída sozinho(a) para adicionar autorizados' : ''" @click="adicionarAutorizado()">
                             <span aria-hidden="true">+</span> Adicionar pessoa autorizada
                         </button>
                     </section>

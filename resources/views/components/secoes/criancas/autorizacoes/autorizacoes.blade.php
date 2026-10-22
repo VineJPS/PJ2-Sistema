@@ -19,10 +19,11 @@
             <div class="cardAutorizacao">
                 <div class="headerAutorizacao">
                     <h3 class="tituloAutorizacao" x-text="item.titulo"></h3>
-                    <span :class="item.autorizado ? 'badgeAutorizado' : 'badgeNaoAutorizado'"
-                        style="cursor:pointer" title="Clique para alterar"
-                        @click="alternar(item)"
-                        x-text="item.autorizado ? 'Autorizado' : 'Não autorizado'"></span>
+                    <button type="button" class="badgePermissao" :class="item.autorizado ? 'badgeAutorizado' : 'badgeNaoAutorizado'"
+                        title="Clique para alterar" @click="alternar(item)">
+                        <span x-text="item.autorizado ? 'Autorizado' : 'Não autorizado'"></span>
+                        <span aria-hidden="true">⇄</span>
+                    </button>
                 </div>
                 <p class="descricaoAutorizacao" x-text="item.descricao"></p>
             </div>
@@ -33,7 +34,7 @@
         <div class="headerGrupo">
             <h2 class="tituloGrupo">Quem pode buscar</h2>
             <div class="wrapperBotoesAdicionar">
-                <button type="button" class="btnAdicionar" @click="abrirForm()">
+                <button type="button" class="btnAdicionar" :disabled="saiSozinho" :title="saiSozinho ? 'Desative a saída sozinho(a) para adicionar autorizados' : ''" @click="abrirForm()">
                     + Novo Autorizado
                 </button>
             </div>
@@ -85,6 +86,11 @@
         Alpine.data('autorizacoesCriancaComponent', (dados, criancaId) => ({
             erro: '',
             erroForm: '',
+
+            get saiSozinho() {
+                const p = this.permissoes.find(x => x.id === 'sai_sozinho');
+                return !!(p && p.autorizado);
+            },
             formAberto: false,
             removendo: null,
             permissoes: dados.autorizacao_permissoes || [],

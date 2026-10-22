@@ -122,6 +122,39 @@
                 editando: null,
                 novoNome: '',
                 erroNome: '',
+                enviandoFoto: false,
+
+                async enviarFoto(evento) {
+                    const arquivo = evento.target.files[0];
+                    evento.target.value = '';
+                    if (!arquivo) return;
+                    this.erroNome = '';
+                    this.enviandoFoto = true;
+                    const corpo = new FormData();
+                    corpo.append('foto', arquivo);
+                    try {
+                        const resposta = await fetch(`/crianca/${this.editando.id}/foto`, {
+                            method: 'POST',
+                            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                            body: corpo,
+                        });
+                        const dados = await resposta.json().catch(() => ({}));
+                        if (!resposta.ok) {
+                            this.erroNome = dados.errors ? Object.values(dados.errors)[0][0] : 'Não foi possível enviar a foto.';
+                            return;
+                        }
+                        this.atualizarLocal(this.editando.id, { foto: dados.foto });
+                    } finally {
+                        this.enviandoFoto = false;
+                    }
+                },
+
+                removerFoto() {
+                    const id = this.editando.id;
+                    this.enviar('DELETE', `/crianca/${id}/foto`)
+                        .then(() => this.atualizarLocal(id, { foto: null }))
+                        .catch((erro) => { this.erroNome = erro.message; });
+                },
 
                 abrirEdicao(crianca) {
                     this.menuAbertoId = null;

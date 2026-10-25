@@ -1,5 +1,5 @@
 @php
-    $crianca = \App\Models\Crianca::dadosTela($criancaId);
+    $crianca = app(\App\Services\CriancaTelaService::class)->dados($criancaId);
     $dadosAutorizacao = $crianca['autorizacoes'] ?? [
         'autorizacao_permissoes' => [],
         'autorizacao_pessoas_buscar' => [],

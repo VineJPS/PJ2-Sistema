@@ -6,7 +6,6 @@ use App\Http\Controllers\AutenticacaoController;
 use App\Http\Controllers\ConviteController;
 use App\Http\Controllers\CriancaController;
 use App\Http\Controllers\MatriculaController;
-use App\Models\Crianca;
 use Illuminate\Support\Facades\Route;
 
 // Rotas públicas (Acesso para visitantes / login)
@@ -75,7 +74,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('crianca')->name('crianca.')->group(function () {
         Route::redirect('/cadastro', '/matricula/crianca');
         Route::get('/menu/{id}', function ($id) {
-            $crianca = Crianca::dadosTela($id);
+            $crianca = app(\App\Services\CriancaTelaService::class)->dados($id);
 
             abort_if(!$crianca, 404, 'Criança não encontrada');
 

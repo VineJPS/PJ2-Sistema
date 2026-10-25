@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Matricula\AutorizacoesRequest;
+use App\Http\Requests\Matricula\ResponsaveisRequest;
 use App\Services\MatriculaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -96,52 +98,13 @@ class MatriculaController extends Controller
         ]);
     }
 
-    public function salvarResponsaveis(Request $request): RedirectResponse
+    public function salvarResponsaveis(ResponsaveisRequest $request): RedirectResponse
     {
         if (!session()->has(self::SESSAO_CRIANCA)) {
             return redirect()->route('matricula.crianca');
         }
 
-        // Linhas de composição familiar totalmente vazias são descartadas antes de validar
-        $request->merge([
-            'membros' => collect($request->input('membros', []))
-                ->filter(fn ($membro) => collect($membro)->filter(fn ($v) => filled($v))->isNotEmpty())
-                ->values()
-                ->all(),
-        ]);
-
-        CriancaController::normalizarTelefones($request, 'responsaveis');
-
-        $dados = $request->validate([
-            'responsaveis' => ['required', 'array', 'min:1'],
-            'responsaveis.*.nome' => ['required', 'string', 'max:255'],
-            'responsaveis.*.parentesco' => ['required', 'string', 'max:100'],
-            'responsaveis.*.telefone' => ['required', 'regex:' . CriancaController::TELEFONE_REGEX],
-            'responsaveis.*.escolaridade' => ['nullable', 'string', 'max:100'],
-            'responsaveis.*.salario' => ['nullable', 'string', 'max:20'],
-            'responsaveis.*.profissao' => ['nullable', 'string', 'max:100'],
-            'responsaveis.*.endereco_comercial' => ['required', 'string', 'max:255'],
-            'responsaveis.*.religiao' => ['nullable', 'string', 'max:100'],
-            'membros' => ['nullable', 'array'],
-            'membros.*.nome' => ['required', 'string', 'max:255'],
-            'membros.*.parentesco' => ['required', 'string', 'max:100'],
-            'membros.*.data_nascimento' => ['nullable', 'date', 'before_or_equal:today'],
-            'membros.*.renda' => ['nullable', 'string', 'max:20'],
-            'renda_total' => ['required', 'string', 'max:20'],
-            'renda_per_capita' => ['required', 'string', 'max:20'],
-            'recebe_beneficio' => ['required', 'boolean'],
-            'beneficio_nis' => ['required_if:recebe_beneficio,1', 'nullable', 'regex:/^\d{3}\.\d{5}\.\d{2}-\d$/'],
-            'beneficio_tipo' => ['required_if:recebe_beneficio,1', 'nullable', 'in:Bolsa Família,Cadúnico,Outros'],
-            'beneficio_valor' => ['required_if:recebe_beneficio,1', 'nullable', 'string', 'max:20'],
-        ], [
-            'required' => 'Preencha este campo.',
-            'required_if' => 'Preencha este campo.',
-            'responsaveis.required' => 'Informe ao menos um responsável.',
-            'responsaveis.*.telefone.regex' => 'Informe um telefone válido, ex: (15) 91234-5678.',
-            'beneficio_nis.regex' => 'Informe o NIS no formato 000.00000.00-0.',
-            '*.data_nascimento.date' => 'Informe uma data válida.',
-            '*.data_nascimento.before_or_equal' => 'A data não pode ser futura.',
-        ]);
+        $dados = $request->validated();
 
         if (!$dados['recebe_beneficio']) {
             $dados['beneficio_nis'] = $dados['beneficio_tipo'] = $dados['beneficio_valor'] = null;
@@ -239,43 +202,15 @@ class MatriculaController extends Controller
         ]);
     }
 
-    public function salvarAutorizacoes(Request $request): RedirectResponse
+    public function salvarAutorizacoes(AutorizacoesRequest $request): RedirectResponse
     {
         if ($pendente = $this->etapaPendente([self::SESSAO_CRIANCA, self::SESSAO_RESPONSAVEIS, self::SESSAO_ENDERECO, self::SESSAO_SAUDE])) {
             return $pendente;
         }
 
-        $request->merge([
-            'autoriza_frequencia' => $request->boolean('autoriza_frequencia'),
-            'sai_sozinho' => $request->boolean('sai_sozinho'),
-            'termo_aceito' => $request->boolean('termo_aceito'),
-        ]);
-
         $assinaturaAnterior = session(self::SESSAO_AUTORIZACOES . '.assinatura_path');
 
-        CriancaController::normalizarTelefones($request, 'autorizados');
-
-        $dados = $request->validate([
-            'autoriza_frequencia' => ['boolean'],
-            'sai_sozinho' => ['boolean'],
-            'autorizados' => ['array'],
-            'autorizados.*.nome' => ['required', 'string', 'max:255'],
-            'autorizados.*.parentesco' => ['required', 'string', 'max:100'],
-            'autorizados.*.telefone' => ['required', 'regex:' . CriancaController::TELEFONE_REGEX],
-            'termo_aceito' => ['accepted'],
-            'data_assinatura' => ['nullable', 'date', 'before_or_equal:today'],
-            'assinatura' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:5120'],
-        ], [
-            'required' => 'Preencha este campo.',
-            'termo_aceito.accepted' => 'É necessário aceitar o termo de compromisso.',
-            'data_assinatura.date' => 'Informe uma data válida.',
-            'data_assinatura.before_or_equal' => 'A data não pode ser futura.',
-            'assinatura.required' => 'Envie a assinatura do responsável.',
-            'assinatura.image' => 'Envie uma imagem PNG ou JPG.',
-            'assinatura.mimes' => 'Envie uma imagem PNG ou JPG.',
-            'assinatura.max' => 'A assinatura deve ter no máximo 5MB.',
-            'autorizados.*.telefone.regex' => 'Informe um telefone válido, ex: (15) 91234-5678.',
-        ]);
+        $dados = $request->validated();
 
         // Sem permissão para sair sozinha, ao menos uma pessoa autorizada é obrigatória
         if (!$dados['sai_sozinho'] && empty($dados['autorizados'])) {

@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AtualizarResponsavelCriancaRequest;
+use App\Http\Requests\PessoaAutorizadaRequest;
 use App\Models\Crianca;
 use App\Models\Endereco;
 use App\Models\PessoaAutorizada;
 use App\Models\Responsavel;
+use App\Services\CriancaService;
+use App\Services\CriancaTelaService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,50 +21,10 @@ class CriancaController extends Controller
 {
     private const STATUS = ['Ativo', 'Inativo', 'Pendente'];
 
-    // (DD) 9XXXX-XXXX para celulares ou (DD) XXXX-XXXX para fixos
-    public const TELEFONE_REGEX = '/^\([1-9]\d\) (?:9\d{4}|[2-5]\d{3})-\d{4}$/';
-
-    // Mantém só os dígitos e reaplica a máscara
-    public static function formatarTelefone(mixed $valor): mixed
-    {
-        if (!is_string($valor)) {
-            return $valor;
-        }
-
-        $d = preg_replace('/\D/', '', $valor);
-        $d = ltrim($d, '0');
-        if (strlen($d) > 11 && str_starts_with($d, '55')) {
-            $d = substr($d, 2);
-        }
-
-        return match (strlen($d)) {
-            11 => sprintf('(%s) %s-%s', substr($d, 0, 2), substr($d, 2, 5), substr($d, 7)),
-            10 => sprintf('(%s) %s-%s', substr($d, 0, 2), substr($d, 2, 4), substr($d, 6)),
-            default => $valor,
-        };
-    }
-
-    // Normaliza o telefone (e os de listas aninhadas) dentro da requisição antes de validar.
-    public static function normalizarTelefones(Request $request, ?string $lista = null): void
-    {
-        if ($lista === null) {
-            if ($request->has('telefone')) {
-                $request->merge(['telefone' => self::formatarTelefone($request->input('telefone'))]);
-            }
-            return;
-        }
-
-        $itens = $request->input($lista);
-        if (!is_array($itens)) {
-            return;
-        }
-
-        foreach ($itens as $i => $item) {
-            if (is_array($item) && array_key_exists('telefone', $item)) {
-                $itens[$i]['telefone'] = self::formatarTelefone($item['telefone']);
-            }
-        }
-        $request->merge([$lista => $itens]);
+    public function __construct(
+        private CriancaService $criancas,
+        private CriancaTelaService $tela,
+    ) {
     }
 
     public function foto(Crianca $crianca)
@@ -125,31 +89,7 @@ class CriancaController extends Controller
 
     public function excluir(Crianca $crianca): JsonResponse
     {
-        DB::transaction(function () use ($crianca) {
-            $crianca->load(['responsaveis', 'assinatura']);
-            $enderecoId = $crianca->endereco_id;
-            $arquivos = array_filter([$crianca->foto_path, $crianca->assinatura?->arquivo_path]);
-            $responsaveisIds = $crianca->responsaveis->pluck('id');
-
-            // As tabelas dependentes caem em cascata junto com a criança
-            $crianca->delete();
-
-            // Responsáveis que não estão ligados a outra criança deixam de existir
-            Responsavel::whereIn('id', $responsaveisIds)
-                ->whereDoesntHave('criancas')
-                ->delete();
-
-            // O endereço só é removido quando ninguém mais o utiliza
-            $emUso = Crianca::where('endereco_id', $enderecoId)->exists()
-                || Responsavel::where('endereco_id', $enderecoId)->exists();
-            if (!$emUso) {
-                Endereco::whereKey($enderecoId)->delete();
-            }
-
-            if ($arquivos) {
-                Storage::disk('public')->delete($arquivos);
-            }
-        });
+        $this->criancas->excluir($crianca);
 
         return response()->json(['removida' => true]);
     }
@@ -201,23 +141,14 @@ class CriancaController extends Controller
             ]);
         });
 
-        return response()->json(['dados' => Crianca::dadosTela($crianca->id)]);
+        return response()->json(['dados' => $this->tela->dados($crianca->id)]);
     }
 
-    public function atualizarResponsavel(Request $request, Crianca $crianca, Responsavel $responsavel): JsonResponse
+    public function atualizarResponsavel(AtualizarResponsavelCriancaRequest $request, Crianca $crianca, Responsavel $responsavel): JsonResponse
     {
         abort_unless($crianca->responsaveis()->whereKey($responsavel->id)->exists(), 404);
 
-        self::normalizarTelefones($request);
-
-        $dados = $request->validate([
-            'nome' => ['required', 'string', 'max:150'],
-            'telefone' => ['required', 'regex:' . self::TELEFONE_REGEX],
-            'enderecoComercial' => ['required', 'string', 'max:255'],
-        ], [
-            'required' => 'Preencha este campo.',
-            'telefone.regex' => 'Informe um telefone válido, ex: (15) 91234-5678.',
-        ]);
+        $dados = $request->validated();
 
         $responsavel->update([
             'nome' => $dados['nome'],
@@ -331,8 +262,8 @@ class CriancaController extends Controller
         });
 
         return response()->json([
-            'ambiente' => $crianca->fresh()->ambiente(),
-            'dados' => Crianca::dadosTela($crianca->id),
+            'ambiente' => $this->tela->ambiente($crianca->fresh()),
+            'dados' => $this->tela->dados($crianca->id),
         ]);
     }
 
@@ -360,18 +291,9 @@ class CriancaController extends Controller
         return response()->json(['ok' => true]);
     }
 
-    public function criarPessoaAutorizada(Request $request, Crianca $crianca): JsonResponse
+    public function criarPessoaAutorizada(PessoaAutorizadaRequest $request, Crianca $crianca): JsonResponse
     {
-        self::normalizarTelefones($request);
-
-        $dados = $request->validate([
-            'nome' => ['required', 'string', 'max:150'],
-            'parentesco' => ['required', 'string', 'max:100'],
-            'telefone' => ['required', 'regex:' . self::TELEFONE_REGEX],
-        ], [
-            'required' => 'Preencha este campo.',
-            'telefone.regex' => 'Informe um telefone válido, ex: (15) 91234-5678.',
-        ]);
+        $dados = $request->validated();
 
         $autorizacao = $crianca->autorizacao()->firstOrCreate([], [
             'autoriza_frequencia' => false,

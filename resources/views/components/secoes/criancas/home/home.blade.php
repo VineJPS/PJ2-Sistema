@@ -18,7 +18,7 @@
     <x-sidebar />
 
 @php
-    $criancasData = \App\Models\Crianca::listaTela();
+    $criancasData = app(\App\Services\CriancaTelaService::class)->lista();
 @endphp
 
     @if (session('success') || session('sucesso'))

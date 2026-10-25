@@ -1,7 +1,7 @@
 @php
     
     // Puxar dados da criança do seeder
-    $crianca = \App\Models\Crianca::dadosTela($criancaId);
+    $crianca = app(\App\Services\CriancaTelaService::class)->dados($criancaId);
     $relatos = $crianca['relatos'] ?? ['relatos_lista' => []];
 @endphp
 

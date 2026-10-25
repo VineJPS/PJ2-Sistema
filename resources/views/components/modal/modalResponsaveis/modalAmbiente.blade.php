@@ -1,5 +1,5 @@
 @php
-    $ambiente = $ambiente ?? (\App\Models\Crianca::dadosTela($criancaId)['ambiente'] ?? []);
+    $ambiente = $ambiente ?? (app(\App\Services\CriancaTelaService::class)->dados($criancaId)['ambiente'] ?? []);
 
     $campo = function (string $expr, string $label, array $op = []) {
         $tipo = $op['tipo'] ?? 'text';

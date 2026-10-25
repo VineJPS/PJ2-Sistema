@@ -15,7 +15,7 @@
     <main class="flex-1 p-8 md:p-12 overflow-y-auto">
         <!-- Cabeçalho de Boas-vindas -->
         <div class="mb-10">
-            <h2 class="text-2xl md:text-3xl font-bold text-[#1e293b] mb-1">Olá equipe!</h2>
+            <h2 class="text-2xl md:text-3xl font-bold text-[#1e293b] mb-1">Olá, equipe!</h2>
             <p class="text-[#64748b] text-base">Acompanhe aqui as principais informações do Recanto Betel.</p>
         </div>
 

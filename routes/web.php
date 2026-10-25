@@ -4,7 +4,8 @@ use App\Http\Controllers\AdminUsuarioController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\AutenticacaoController;
 use App\Http\Controllers\ConviteController;
-use Database\Seeders\CriancaDataSeeder;
+use App\Http\Controllers\CriancaController;
+use App\Http\Controllers\MatriculaController;
 use Illuminate\Support\Facades\Route;
 
 // Rotas públicas (Acesso para visitantes / login)
@@ -55,14 +56,44 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [UsuarioController::class, 'deletar'])->name('destroy');
     });
 
+    Route::prefix('matricula')->name('matricula.')->group(function () {
+        Route::redirect('/', '/matricula/crianca');
+        Route::get('/crianca', [MatriculaController::class, 'mostrarCrianca'])->name('crianca');
+        Route::post('/crianca', [MatriculaController::class, 'salvarCrianca'])->name('crianca.salvar');
+        Route::get('/crianca/foto', [MatriculaController::class, 'fotoRascunho'])->name('crianca.foto');
+        Route::get('/responsaveis', [MatriculaController::class, 'mostrarResponsaveis'])->name('responsaveis');
+        Route::post('/responsaveis', [MatriculaController::class, 'salvarResponsaveis'])->name('responsaveis.salvar');
+        Route::get('/endereco', [MatriculaController::class, 'mostrarEndereco'])->name('endereco');
+        Route::post('/endereco', [MatriculaController::class, 'salvarEndereco'])->name('endereco.salvar');
+        Route::get('/saude', [MatriculaController::class, 'mostrarSaude'])->name('saude');
+        Route::post('/saude', [MatriculaController::class, 'salvarSaude'])->name('saude.salvar');
+        Route::get('/autorizacoes', [MatriculaController::class, 'mostrarAutorizacoes'])->name('autorizacoes');
+        Route::post('/autorizacoes', [MatriculaController::class, 'salvarAutorizacoes'])->name('autorizacoes.salvar');
+    });
+
     Route::prefix('crianca')->name('crianca.')->group(function () {
+        Route::redirect('/cadastro', '/matricula/crianca');
         Route::get('/menu/{id}', function ($id) {
-            $crianca = CriancaDataSeeder::getCriancaById($id);
+            $crianca = app(\App\Services\CriancaTelaService::class)->dados($id);
 
             abort_if(!$crianca, 404, 'Criança não encontrada');
 
             return view('components.menu.menuSecoesCriancas.menuCrianca', compact('crianca'));
         })->name('menu');
+
+        Route::patch('/{crianca}/nome', [CriancaController::class, 'atualizarNome'])->name('nome');
+        Route::patch('/{crianca}/status', [CriancaController::class, 'atualizarStatus'])->name('status');
+        Route::delete('/{crianca}', [CriancaController::class, 'excluir'])->name('excluir');
+        Route::put('/{crianca}/dados', [CriancaController::class, 'atualizarDados'])->name('dados');
+        Route::put('/{crianca}/responsaveis/{responsavel}', [CriancaController::class, 'atualizarResponsavel'])->name('responsavel.atualizar');
+        Route::put('/{crianca}/ambiente', [CriancaController::class, 'atualizarAmbiente'])->name('ambiente');
+        Route::patch('/{crianca}/autorizacoes/permissoes', [CriancaController::class, 'atualizarPermissoes'])->name('permissoes');
+        Route::post('/{crianca}/autorizacoes/pessoas', [CriancaController::class, 'criarPessoaAutorizada'])->name('pessoas.criar');
+        Route::delete('/{crianca}/autorizacoes/pessoas/{pessoa}', [CriancaController::class, 'excluirPessoaAutorizada'])->name('pessoas.excluir');
+        Route::post('/{crianca}/assinatura', [CriancaController::class, 'atualizarAssinatura'])->name('assinatura');
+        Route::get('/{crianca}/foto', [CriancaController::class, 'foto'])->name('foto');
+        Route::post('/{crianca}/foto', [CriancaController::class, 'atualizarFoto'])->name('foto.atualizar');
+        Route::delete('/{crianca}/foto', [CriancaController::class, 'excluirFoto'])->name('foto.excluir');
 
         $secoes = ['saude', 'responsaveis', 'autorizacoes', 'relatos', 'matricula'];
 

@@ -2,14 +2,21 @@
 
 namespace Database\Seeders;
 
+use App\Models\Assinatura;
+use App\Models\Autorizacao;
+use App\Models\Crianca;
+use App\Models\Endereco;
+use App\Models\Gasto;
+use App\Models\Responsavel;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class CriancaDataSeeder extends Seeder
 {
     /**
      * Dados padrão utilizados nas telas de todas as crianças.
      */
-    private static function getDadosPadrao(): array
+    public static function getDadosPadrao(): array
     {
         return [
 
@@ -258,7 +265,74 @@ class CriancaDataSeeder extends Seeder
 
     public function run(): void
     {
-        // Método pronto para salvar no banco futuramente, se necessário.
+        $padrao = self::getDadosPadrao();
+
+        foreach (self::getCriancasBasicas() as $basica) {
+            DB::transaction(function () use ($basica, $padrao) {
+                $endereco = Endereco::create([
+                    'rua' => 'Rua das Acácias',
+                    'numero' => '247',
+                    'bairro' => 'Jardim Primavera',
+                    'cidade' => 'Tatuí',
+                    'estado' => 'SP',
+                    'ponto_referencia' => 'Próximo à praça central',
+                    'moradia' => 'Própria',
+                ]);
+
+                Gasto::create([
+                    'endereco_id' => $endereco->id,
+                    'agua' => 85.50,
+                    'energia' => 150.00,
+                    'alimentacao' => 600.00,
+                    'gas' => 110.00,
+                ]);
+
+                $crianca = Crianca::create([
+                    'endereco_id' => $endereco->id,
+                    'nome' => $basica['nome'],
+                    'rg' => $padrao['rg'],
+                    'data_nascimento' => now()->subYears($basica['idade'])->subMonths(2)->toDateString(),
+                    'escola' => $padrao['escola'],
+                    'periodo' => $padrao['periodo'],
+                    'serie' => $padrao['serie'],
+                    'turma_betel' => $padrao['classeBetel'],
+                    'status' => $basica['status'],
+                    'conselho_tutelar' => false,
+                ]);
+
+                // CPF é único: gera um distinto por criança
+                $crianca->update(['cpf' => sprintf('%03d.456.789-%02d', 100 + $crianca->id, $crianca->id)]);
+
+                foreach ($padrao['responsaveis'] as $r) {
+                    $responsavel = Responsavel::create([
+                        'endereco_id' => $endereco->id,
+                        'nome' => $r['nome'],
+                        'telefone' => $r['telefone'],
+                        'endereco_comercial' => $r['enderecoComercial'],
+                    ]);
+                    $crianca->responsaveis()->attach($responsavel->id, ['grau_parentesco' => $r['parentesco']]);
+                }
+
+                $autorizacao = Autorizacao::create([
+                    'crianca_id' => $crianca->id,
+                    'autoriza_frequencia' => true,
+                    'sai_sozinho' => false,
+                ]);
+                foreach ($padrao['autorizacoes']['autorizacao_pessoas_buscar'] as $p) {
+                    $autorizacao->pessoasAutorizadas()->create([
+                        'nome' => $p['nome'],
+                        'parentesco' => $p['parentesco'],
+                        'telefone' => $p['telefone'],
+                    ]);
+                }
+
+                Assinatura::create([
+                    'crianca_id' => $crianca->id,
+                    'termo_aceito' => true,
+                    'data_assinatura' => now()->subYear()->toDateString(),
+                ]);
+            });
+        }
     }
 
     public static function getCriancaById($id): ?array

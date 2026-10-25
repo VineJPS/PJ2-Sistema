@@ -188,6 +188,7 @@
 }
 
 .cardCrianca {
+  position: relative;
   background-color: #ffffff;
   border-radius: 18px;
   padding: 1rem 1.25rem;
@@ -334,3 +335,32 @@
     grid-template-columns: 1fr;
   }
 }
+.menuCrianca {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+
+
+/* Foto da criança com borda na cor do status */
+.avatarCircle {
+  box-sizing: border-box;
+}
+
+.avatarCircle.comFoto {
+  border: 3px solid transparent;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.avatarFoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.cardAtivo .avatarCircle.comFoto { border-color: #3eb070; }
+.cardInativo .avatarCircle.comFoto { border-color: #b2b8be; }
+.cardAlergico .avatarCircle.comFoto { border-color: #e7a058; }

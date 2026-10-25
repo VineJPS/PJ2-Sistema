@@ -203,6 +203,72 @@
 }
 
 /* ---------- Botão Editar ---------- */
+.blocoFoto {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.fotoPreview {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid #3eb070;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fotoPreview.fotoAtivo { border-color: #3eb070; }
+.fotoPreview.fotoInativo { border-color: #b2b8be; }
+.fotoPreview.fotoPendente { border-color: #e7a058; }
+
+.fotoPreviewImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fotoVazia { color: #94a3b8; }
+
+.fotoAcoes {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btnRemoverFoto {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.btnRemoverFoto:disabled {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #cbd5e1;
+  cursor: not-allowed;
+}
+
+.fotoErro {
+  width: 100%;
+  margin: 0;
+  font-size: 12px;
+  color: #dc2626;
+}
+
 .btnEditar {
   background: none;
   border: none;

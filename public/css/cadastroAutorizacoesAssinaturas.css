@@ -1,0 +1,228 @@
+.autorizacao-card {
+    padding: 20px;
+}
+
+.autorizacao-linha {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 14px;
+}
+
+.autorizacao-linha h2 {
+    margin: 0 0 6px;
+    color: #1e293b;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.autorizacao-linha p {
+    margin: 0;
+    color: #526077;
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.divisor {
+    margin: 16px 0;
+    border: 0;
+    border-top: 1px solid #edf1f7;
+}
+
+.switch {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    flex: 0 0 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: #dfe5ee;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.switch span {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 20%);
+    transition: transform 0.15s;
+}
+
+.switch.ligado {
+    background: #1d6fe0;
+}
+
+.switch.ligado span {
+    transform: translateX(16px);
+}
+
+.switch:focus-visible {
+    outline: 2px solid #3977e8;
+    outline-offset: 2px;
+}
+
+.bloco-destaque {
+    border-color: #2f8fe8;
+    box-shadow: 0 0 0 2px rgb(47 143 232 / 25%);
+}
+
+.termo-secao {
+    margin: 0 0 18px;
+    padding: 0 4px;
+}
+
+.termo-secao h2 {
+    margin: 0 0 2px;
+    color: #1e293b;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.termo-sub {
+    margin: 0 0 10px;
+    color: #9aa6b8;
+    font-size: 9px;
+}
+
+.termo-caixa {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid #cfe0ff;
+    border-radius: 9px;
+    background: #f2f7ff;
+    color: #3a4a63;
+    font-size: 9px;
+    line-height: 1.6;
+    cursor: pointer;
+}
+
+.termo-caixa input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.check-visual {
+    display: grid;
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
+    place-items: center;
+    margin-top: 1px;
+    border: 1px solid #9ab8f0;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.termo-caixa input:checked + .check-visual {
+    border-color: #1d4ed8;
+    background: #1d4ed8;
+}
+
+.termo-caixa input:checked + .check-visual::after {
+    content: '';
+    width: 3px;
+    height: 7px;
+    margin-bottom: 2px;
+    border: solid #fff;
+    border-width: 0 1.5px 1.5px 0;
+    transform: rotate(45deg);
+}
+
+.termo-caixa:focus-within {
+    outline: 2px solid #3977e8;
+    outline-offset: 2px;
+}
+
+.assinatura-bloco {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.assinatura-area {
+    display: flex;
+    min-height: 92px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 14px;
+    border: 1px dashed #cfd8e6;
+    border-radius: 10px;
+    background: #fbfcfe;
+    color: #526077;
+    font-size: 9px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.assinatura-area:hover {
+    border-color: #6c9df4;
+    background: #f4f8ff;
+}
+
+.assinatura-area strong {
+    color: #1d4ed8;
+    font-weight: 650;
+}
+
+.assinatura-area small {
+    color: #9aa6b8;
+    font-size: 8px;
+}
+
+.assinatura-area input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+
+.assinatura-area:focus-within {
+    outline: 2px solid #3977e8;
+    outline-offset: 2px;
+}
+
+.assinatura-icone {
+    display: grid;
+    width: 22px;
+    height: 22px;
+    place-items: center;
+    border-radius: 50%;
+    background: #eaf2ff;
+    color: #2f6fe0;
+}
+
+.assinatura-icone svg {
+    width: 12px;
+    height: 12px;
+}
+
+.aviso-sucesso {
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    border: 1px solid #bfe3c9;
+    border-radius: 10px;
+    background: #f1fbf4;
+    color: #1d6b3a;
+    font-size: 10px;
+}
+
+.rotulo-grupo {
+    color: #273449;
+    font-size: 10px;
+    font-weight: 600;
+}

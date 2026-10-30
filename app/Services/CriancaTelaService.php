@@ -150,6 +150,15 @@ class CriancaTelaService
                     'arquivo' => $assinatura?->arquivo_path,
                 ],
             ],
+            'relatos' => [
+                'relatos_lista' => $crianca->relatos()->orderBy('data_ocorrido', 'desc')->get()->map(fn ($r) => [
+                    'relato_id' => $r->id,
+                    'relato_funcionario' => $r->nome_funcionario,
+                    'relato_data' => $r->data_ocorrido?->format('d/m/Y') ?? '',
+                    'relato_texto_curto' => \Illuminate\Support\Str::limit($r->relato, 70),
+                    'relato_texto_completo' => $r->relato,
+                ])->all(),
+            ],
         ];
     }
 

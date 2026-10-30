@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             FichaAnamneseSeeder::class,
             AnamneseHistoricoClinicoSeeder::class,
             AnamnesePathSeeder::class,
+            RelatoSeeder::class,
         ]);
     }
 }

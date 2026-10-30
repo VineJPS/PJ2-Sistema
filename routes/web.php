@@ -6,6 +6,7 @@ use App\Http\Controllers\AutenticacaoController;
 use App\Http\Controllers\ConviteController;
 use App\Http\Controllers\CriancaController;
 use App\Http\Controllers\MatriculaController;
+use App\Http\Controllers\RelatoController;
 use Illuminate\Support\Facades\Route;
 
 // Rotas públicas (Acesso para visitantes / login)
@@ -69,6 +70,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/saude', [MatriculaController::class, 'salvarSaude'])->name('saude.salvar');
         Route::get('/autorizacoes', [MatriculaController::class, 'mostrarAutorizacoes'])->name('autorizacoes');
         Route::post('/autorizacoes', [MatriculaController::class, 'salvarAutorizacoes'])->name('autorizacoes.salvar');
+    });
+
+    Route::prefix('relatos')->name('relatos.')->group(function () {
+        Route::get('/', [RelatoController::class, 'index'])->name('index');
+        Route::get('/criar', [RelatoController::class, 'create'])->name('create');
+        Route::post('/', [RelatoController::class, 'store'])->name('store');
+        Route::get('/{id}', [RelatoController::class, 'show'])->name('show');
+        Route::get('/{id}/editar', [RelatoController::class, 'edit'])->name('edit');
+        Route::match(['put', 'patch'], '/{id}', [RelatoController::class, 'update'])->name('update');
+        Route::delete('/{id}', [RelatoController::class, 'destroy'])->name('destroy');
     });
 
     Route::prefix('crianca')->name('crianca.')->group(function () {

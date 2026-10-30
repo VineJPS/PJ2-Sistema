@@ -70,6 +70,11 @@ class Crianca extends Model
         return $this->hasOne(Assinatura::class, 'crianca_id');
     }
 
+    public function relatos(): HasMany
+    {
+        return $this->hasMany(Relato::class, 'nome_crianca', 'nome');
+    }
+
     /** A foto é servida por rota autenticada, sem depender do link simbólico do storage. */
     public function fotoUrl(): ?string
     {

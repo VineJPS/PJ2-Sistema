@@ -10,6 +10,24 @@ use Illuminate\Support\Facades\Storage;
 
 class CriancaService
 {
+    /**
+     * Atualiza apenas os dados escolares da criança (rematrícula)
+     * e reativa o status para Ativo ao concluir.
+     */
+    public function rematricula(Crianca $crianca, array $dados): Crianca
+    {
+        $crianca->update([
+            'escola'      => $dados['escola'],
+            'periodo'     => $dados['periodo'],
+            'serie'       => $dados['serie'],
+            'turma_betel' => $dados['turma_betel'],
+            'ano_letivo'  => $dados['ano_letivo'],
+            'status'      => 'Ativo',
+        ]);
+
+        return $crianca->fresh();
+    }
+
     public function excluir(Crianca $crianca): void
     {
         DB::transaction(function () use ($crianca) {

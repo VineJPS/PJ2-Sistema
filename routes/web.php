@@ -105,6 +105,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/{crianca}/foto', [CriancaController::class, 'foto'])->name('foto');
         Route::post('/{crianca}/foto', [CriancaController::class, 'atualizarFoto'])->name('foto.atualizar');
         Route::delete('/{crianca}/foto', [CriancaController::class, 'excluirFoto'])->name('foto.excluir');
+        Route::get('/{crianca}/rematricula', [CriancaController::class, 'mostrarRematricula'])->name('rematricula');
+        Route::patch('/{crianca}/rematricula', [CriancaController::class, 'salvarRematricula'])->name('rematricula.salvar');
 
         $secoes = ['saude', 'responsaveis', 'autorizacoes', 'relatos', 'matricula'];
 

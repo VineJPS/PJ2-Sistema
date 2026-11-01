@@ -26,6 +26,7 @@ class Crianca extends Model
         'periodo',
         'serie',
         'turma_betel',
+        'ano_letivo',
         'status',
         'relatos',
         'conselho_tutelar',

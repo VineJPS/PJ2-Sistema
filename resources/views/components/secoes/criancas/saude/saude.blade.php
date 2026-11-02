@@ -1,8 +1,6 @@
 @php
-
-    // Puxar dados da criança do seeder
-    $crianca = app(\App\Services\CriancaTelaService::class)->dados($criancaId);
-    $dadosSaude = $crianca['saude'] ?? [];
+    $svc = app(\App\Services\CriancaTelaService::class);
+    $dadosSaude = $svc->saude($criancaId);
 @endphp
 
 @once
@@ -11,20 +9,35 @@
 
 <div class="conteudoAba pgSaude" x-data="saudeCriancaComponent({{ json_encode($dadosSaude) }})">
 
-    {{-- Banner de Alerta Crítico (Condicional) --}}
-    @if(!empty($dadosSaude['tem_alergia_grave']) && !empty($dadosSaude['alerta_remedio']))
+    {{-- Banner de Alerta Crítico (Condicional — exibido se houver texto no alerta) --}}
+    <template x-if="!isEditing && form.alerta_remedio">
         <div class="bannerAlertaRemedio">
             <img src="{{ asset('assets/alert-triangle.png') }}" alt="Alerta" class="iconeAlerta">
             <div>
-                <h3 class="tituloAlertaRemedio">{{ $dadosSaude['alerta_remedio'] }}</h3>
-                @if(!empty($dadosSaude['alerta_remedio_instrucao']))
-                    <p class="subtituloAlertaRemedio">{{ $dadosSaude['alerta_remedio_instrucao'] }}</p>
-                @endif
+                <h3 class="tituloAlertaRemedio" x-text="form.alerta_remedio"></h3>
+                <p class="subtituloAlertaRemedio" x-show="form.alerta_remedio_instrucao" x-text="form.alerta_remedio_instrucao"></p>
             </div>
         </div>
-    @endif
+    </template>
 
     <div class="cardInfo" style="padding: 20px;">
+
+        {{-- Alerta de alergia grave (editável no modo edição) --}}
+        <template x-if="isEditing">
+            <div class="secaoBloco secaoBlocoAlerta">
+                <h2 class="secaoTituloAlerta">⚠ Alerta crítico de alergia</h2>
+                <div class="gridDuasColunas">
+                    <div>
+                        <label class="labelCampo">Alerta (ex: Alergia a dipirona)</label>
+                        <input type="text" x-model="form.alerta_remedio" class="inputCampo" placeholder="Ex: Alergia a dipirona" />
+                    </div>
+                    <div>
+                        <label class="labelCampo">Instrução (ex: Não administrar em nenhuma hipótese)</label>
+                        <input type="text" x-model="form.alerta_remedio_instrucao" class="inputCampo" placeholder="Ex: Não administrar em nenhuma hipótese!" />
+                    </div>
+                </div>
+            </div>
+        </template>
 
         {{-- Queixa principal --}}
         <div class="secaoBloco">
@@ -41,8 +54,20 @@
         <div class="secaoBloco">
             <h2 class="secaoTitulo">Questionário de saúde</h2>
 
-            {{-- Campos Sim/Não --}}
+            {{-- Linha 1: Sofre de doença (texto livre) + Em tratamento + Gravidez (Sim/Não) --}}
             <div class="gridTrisecao">
+                {{-- Sofre de doença: texto livre --}}
+                <div>
+                    <label class="labelCampo">Sofre de doença</label>
+                    <template x-if="isEditing">
+                        <input type="text" x-model="form.sofre_doenca" class="inputCampo" placeholder="Ex: Asma, diabetes..." />
+                    </template>
+                    <template x-if="!isEditing">
+                        <p class="valorCampo" x-text="form.sofre_doenca || '--'"></p>
+                    </template>
+                </div>
+
+                {{-- Campos Sim/Não (Em tratamento e Gravidez) --}}
                 <template x-for="campo in camposQuestionario" :key="campo.key">
                     <div>
                         <label class="labelCampo" x-text="campo.label"></label>
@@ -80,7 +105,7 @@
                         </div>
                     </template>
                     <template x-if="!isEditing">
-                        <p class="valorCampo" x-text="(form.medico_assistente || '--') + ' ' + (form.medico_telefone || '')"></p>
+                        <p class="valorCampo" x-text="(form.medico_assistente || '--') + (form.medico_telefone ? '  ' + form.medico_telefone : '')"></p>
                     </template>
                 </div>
             </div>
@@ -188,8 +213,8 @@
                 </div>
             </template>
             <template x-if="!isEditing">
-                <button type="button" class="btnEditarOutline" @click="isEditing = true">
-                    <img src="{{ asset('assets/edit.png') }}" alt="Editar" class="iconeLapis"> Editar ficha
+                <button type="button" class="btnEditarSolid" @click="isEditing = true">
+                    <img src="{{ asset('assets/edit.png') }}" alt="Editar" class="iconeLapisBranco"> Editar ficha
                 </button>
             </template>
         </div>
@@ -203,7 +228,6 @@
 
             // Campos Sim/Não do questionário
             camposQuestionario: [
-                { key: 'sofre_doenca', label: 'Sofre de doença' },
                 { key: 'em_tratamento', label: 'Em tratamento' },
                 { key: 'gravidez', label: 'Gravidez' },
             ],

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Crianca;
+use App\Models\FichaAnamnese;
 use App\Models\MembroFamiliar;
 use App\Models\PessoaAutorizada;
 use App\Models\Responsavel;
@@ -27,6 +28,65 @@ class CriancaTelaService
         $crianca = Crianca::with(['endereco', 'responsaveis', 'autorizacao.pessoasAutorizadas', 'assinatura'])->find($id);
 
         return $crianca ? $this->formatar($crianca) : null;
+    }
+
+    /** Dados de saúde da criança lidos do banco. Cria ficha vazia se ainda não existir. */
+    public function saude($id): array
+    {
+        $crianca = Crianca::find($id);
+        if (! $crianca) {
+            return [];
+        }
+
+        $ficha   = $crianca->fichaAnamnese()->with(['historicoClinico', 'paths'])->first();
+        $hc      = $ficha?->historicoClinico;
+        $paths   = $ficha?->paths;
+
+        // Doenças específicas: persiste como JSON em anamnese_paths.doencas_especificas.
+        // Se ainda não houver registro, usa a lista padrão do seeder (sem nenhuma selecionada).
+        $doencasEspecificas = $paths?->doencas_especificas
+            ?? \Database\Seeders\CriancaDataSeeder::getDadosPadrao()['saude']['doencas_especificas'];
+
+        // Cirurgias: campo texto livre separado por \n, convertido para array.
+        $cirurgias = [];
+        if ($hc?->ja_foi_operado && $hc->quais_cirurgias) {
+            $cirurgias = array_values(array_filter(
+                array_map('trim', explode("\n", $hc->quais_cirurgias))
+            ));
+        }
+
+        return [
+            // Banner de alerta de alergia grave
+            'alerta_remedio'          => $hc?->tem_alergia ? ($hc->quais_alergias ?? '') : '',
+            'alerta_remedio_instrucao'=> $hc?->instrucao_alergia ?? '',
+
+            // Queixa principal / evolução
+            'queixa_principal'        => $ficha?->queixa_principal ?? '',
+
+            // Questionário de saúde
+            'sofre_doenca'            => $hc?->quais_doencas ?? '',
+            'em_tratamento'           => $hc?->em_tratamento_medico ? 'Sim' : 'Não',
+            'gravidez'                => $hc?->esta_gravida ? 'Sim' : 'Não',
+            'uso_medicacao'           => $hc?->quais_medicacoes ?? '',
+            'medico_assistente'       => $ficha?->medico_assistente ?? '',
+            'medico_telefone'         => $ficha?->medico_telefone ?? '',
+
+            // Cirurgias
+            'cirurgias'               => $cirurgias,
+
+            // Doenças específicas (chips)
+            'doencas_especificas'     => $doencasEspecificas,
+
+            // Cicatrização / Anestesia / Hemorragia
+            'problema_cicatrizacao'   => $paths?->problema_cicatrizacao ? 'Sim' : 'Não',
+            'alerta_anestesia'        => $paths?->alerta_anestesia ? 'Sim' : 'Não',
+            'hemorragia'              => $paths?->hemorragia ? 'Sim' : 'Não',
+
+            // Hábitos / Antecedentes / Outras informações
+            'habitos'                 => $ficha?->habitos ?? '',
+            'antecedentes_familiares' => $ficha?->antecedentes_familiares ?? '',
+            'outras_informacoes'      => $ficha?->outras_informacoes ?? '',
+        ];
     }
 
     // Dados do ambiente familiar: complementos dos responsáveis, composição, renda, endereço e gastos

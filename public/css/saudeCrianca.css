@@ -14,11 +14,26 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  border: 1px solid #f87171;
-  background-color: #ffffff;
+  border: 1px solid #fca5a5;
+  background-color: #fff1f2;
   border-radius: 8px;
   padding: 16px 20px;
   margin-bottom: 32px;
+}
+
+/* Bloco de edição do alerta crítico */
+.secaoBlocoAlerta {
+  border: 1px solid #fca5a5;
+  background-color: #fff1f2;
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.secaoTituloAlerta {
+  font-size: 15px;
+  font-weight: 700;
+  color: #dc2626;
+  margin: 0 0 12px 0;
 }
 
 .iconeAlerta {
@@ -158,9 +173,9 @@
 }
 
 .tagSelecionada {
-  background-color: #c7d2fe;
-  border-color: #a5b4fc;
-  color: #1e3a8a;
+  background-color: #dbeafe;
+  border-color: #93c5fd;
+  color: #1d4ed8;
 }
 
 /* Botões da Parte Inferior */
@@ -168,6 +183,36 @@
   display: flex;
   gap: 16px;
   margin-top: 40px;
+}
+
+.pgSaude .btnSalvar {
+  background-color: #0266b3;
+  color: #ffffff;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pgSaude .btnSalvar:hover {
+  filter: brightness(1.1);
+}
+
+.pgSaude .btnCancelar {
+  background-color: transparent;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.pgSaude .btnCancelar:hover {
+  background-color: #f3f4f6;
 }
 
 .btnEditarOutline {

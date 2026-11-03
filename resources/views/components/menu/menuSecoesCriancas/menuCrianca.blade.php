@@ -46,10 +46,12 @@
     
             
                 <div class="rematricula">
-                    <a href="#" class="btnRematricula">
-                        <img src="{{ asset('assets/refresh.svg') }}" alt="Rematrícula">
-                        Rematricular    
-                    </a>
+                    @if(($crianca['status'] ?? '') === 'Pendente')
+                        <a href="{{ route('crianca.rematricula', $crianca['id']) }}" class="btnRematricula">
+                            <img src="{{ asset('assets/refresh.svg') }}" alt="Rematrícula">
+                            Rematricular
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>

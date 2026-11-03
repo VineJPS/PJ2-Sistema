@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-
 class Crianca extends Model
 {
     use HasFactory;
@@ -26,6 +25,7 @@ class Crianca extends Model
         'periodo',
         'serie',
         'turma_betel',
+        'ano_letivo',
         'status',
         'relatos',
         'conselho_tutelar',
@@ -68,6 +68,16 @@ class Crianca extends Model
     public function assinatura(): HasOne
     {
         return $this->hasOne(Assinatura::class, 'crianca_id');
+    }
+
+    public function fichaAnamnese(): HasOne
+    {
+        return $this->hasOne(FichaAnamnese::class, 'crianca_id');
+    }
+
+    public function relatos(): HasMany
+    {
+        return $this->hasMany(Relato::class, 'nome_crianca', 'nome');
     }
 
     /** A foto é servida por rota autenticada, sem depender do link simbólico do storage. */

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -55,6 +56,11 @@ class Usuario extends Authenticatable
     public function nivel(): BelongsTo
     {
         return $this->belongsTo(Nivel::class, 'FK_id_nivel');
+    }
+
+    public function relatos(): HasMany
+    {
+        return $this->hasMany(Relato::class, 'FK_id_usuario');
     }
 
     public function getNameAttribute(): ?string

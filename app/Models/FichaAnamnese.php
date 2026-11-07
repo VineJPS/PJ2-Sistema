@@ -20,12 +20,15 @@ class FichaAnamnese extends Model
         'medico_assistente',
         'medico_telefone',
         'data_preenchimento',
+        'declaracao_aceita',
+        'assinatura_path',
     ];
 
     protected function casts(): array
     {
         return [
             'data_preenchimento' => 'date',
+            'declaracao_aceita' => 'boolean',
         ];
     }
 
@@ -42,5 +45,14 @@ class FichaAnamnese extends Model
     public function paths(): HasOne
     {
         return $this->hasOne(AnamnesePath::class, 'ficha_anamnese_id');
+    }
+
+    public function assinaturaUrl(): ?string
+    {
+        if (blank($this->assinatura_path)) {
+            return null;
+        }
+
+        return asset('storage/' . $this->assinatura_path);
     }
 }

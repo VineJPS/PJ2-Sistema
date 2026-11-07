@@ -30,7 +30,7 @@ class CriancaTelaService
         return $crianca ? $this->formatar($crianca) : null;
     }
 
-    /** Dados de saúde da criança lidos do banco. Cria ficha vazia se ainda não existir. */
+    /** Dados de saúde da criança lidos do banco. */
     public function saude($id): array
     {
         $crianca = Crianca::find($id);
@@ -38,25 +38,60 @@ class CriancaTelaService
             return [];
         }
 
-        $ficha   = $crianca->fichaAnamnese()->with(['historicoClinico', 'paths'])->first();
-        $hc      = $ficha?->historicoClinico;
-        $paths   = $ficha?->paths;
+        $ficha = $crianca->fichaAnamnese()->with(['historicoClinico', 'paths'])->first();
+        $hc = $ficha?->historicoClinico;
+        $paths = $ficha?->paths;
 
-        // Doenças específicas: persiste como JSON em anamnese_paths.doencas_especificas.
-        // Se ainda não houver registro, usa a lista padrão do seeder (sem nenhuma selecionada).
-        $doencasEspecificas = $paths?->doencas_especificas
-            ?? \Database\Seeders\CriancaDataSeeder::getDadosPadrao()['saude']['doencas_especificas'];
+        $patologiasNomes = [
+            'Febre reumática',
+            'Cardíaco',
+            'Renal',
+            'Gástrico',
+            'Respiratório',
+            'Articular/Reumatismo',
+            'Diabetes',
+            'Hipertensão',
+        ];
 
-        // Cirurgias: campo texto livre separado por \n, convertido para array.
+        $doencasSalvas = $paths?->doencas_especificas;
+        if (is_array($doencasSalvas) && count($doencasSalvas) > 0) {
+            $mapa = [];
+            foreach ($doencasSalvas as $d) {
+                $nomeNorm = self::normalizarNomePatologia($d['nome'] ?? '');
+                $mapa[$nomeNorm] = (bool) ($d['selecionado'] ?? false);
+            }
+            $doencasEspecificas = array_map(fn ($nome) => [
+                'nome' => $nome,
+                'selecionado' => $mapa[$nome] ?? false,
+            ], $patologiasNomes);
+        } elseif ($paths) {
+            $doencasEspecificas = [
+                ['nome' => 'Febre reumática',      'selecionado' => false],
+                ['nome' => 'Cardíaco',             'selecionado' => (bool) $paths->problemas_cardiacos],
+                ['nome' => 'Renal',                'selecionado' => false],
+                ['nome' => 'Gástrico',             'selecionado' => (bool) $paths->problemas_gastrointestinais],
+                ['nome' => 'Respiratório',         'selecionado' => (bool) $paths->problemas_pulmonares],
+                ['nome' => 'Articular/Reumatismo', 'selecionado' => false],
+                ['nome' => 'Diabetes',             'selecionado' => false],
+                ['nome' => 'Hipertensão',          'selecionado' => false],
+            ];
+        } else {
+            $doencasEspecificas = array_map(fn ($nome) => [
+                'nome' => $nome,
+                'selecionado' => false,
+            ], $patologiasNomes);
+        }
+
+        // Cirurgias: separa por quebra de linha ou vírgula
         $cirurgias = [];
-        if ($hc?->ja_foi_operado && $hc->quais_cirurgias) {
+        if ($hc?->quais_cirurgias) {
             $cirurgias = array_values(array_filter(
-                array_map('trim', explode("\n", $hc->quais_cirurgias))
+                array_map('trim', preg_split('/[\n,]+/', $hc->quais_cirurgias))
             ));
         }
 
         return [
-            // Banner de alerta de alergia grave
+            // Banner de Alerta Crítico
             'alerta_remedio'          => $hc?->tem_alergia ? ($hc->quais_alergias ?? '') : '',
             'alerta_remedio_instrucao'=> $hc?->instrucao_alergia ?? '',
 
@@ -64,10 +99,10 @@ class CriancaTelaService
             'queixa_principal'        => $ficha?->queixa_principal ?? '',
 
             // Questionário de saúde
-            'sofre_doenca'            => $hc?->quais_doencas ?? '',
+            'sofre_doenca'            => $hc?->quais_doencas ?? ($hc?->teve_doenca ? 'Sim' : ''),
             'em_tratamento'           => $hc?->em_tratamento_medico ? 'Sim' : 'Não',
             'gravidez'                => $hc?->esta_gravida ? 'Sim' : 'Não',
-            'uso_medicacao'           => $hc?->quais_medicacoes ?? '',
+            'uso_medicacao'           => $hc?->quais_medicacoes ?? ($hc?->usa_medicacao ? 'Sim' : ''),
             'medico_assistente'       => $ficha?->medico_assistente ?? '',
             'medico_telefone'         => $ficha?->medico_telefone ?? '',
 
@@ -77,16 +112,47 @@ class CriancaTelaService
             // Doenças específicas (chips)
             'doencas_especificas'     => $doencasEspecificas,
 
-            // Cicatrização / Anestesia / Hemorragia
+            // Cicatrização, anestesia e hemorragia
             'problema_cicatrizacao'   => $paths?->problema_cicatrizacao ? 'Sim' : 'Não',
             'alerta_anestesia'        => $paths?->alerta_anestesia ? 'Sim' : 'Não',
             'hemorragia'              => $paths?->hemorragia ? 'Sim' : 'Não',
 
-            // Hábitos / Antecedentes / Outras informações
+            // Hábitos
             'habitos'                 => $ficha?->habitos ?? '',
+
+            // Antecedentes familiares
             'antecedentes_familiares' => $ficha?->antecedentes_familiares ?? '',
+
+            // Outras informações
             'outras_informacoes'      => $ficha?->outras_informacoes ?? '',
         ];
+    }
+
+    private static function normalizarNomePatologia(string $nome): string
+    {
+        $map = [
+            'febre reumática' => 'Febre reumática',
+            'cardíaco' => 'Cardíaco',
+            'cardiaco' => 'Cardíaco',
+            'problemas cardíacos' => 'Cardíaco',
+            'problema cardíacos' => 'Cardíaco',
+            'renal' => 'Renal',
+            'problemas renais' => 'Renal',
+            'gástrico' => 'Gástrico',
+            'gastrico' => 'Gástrico',
+            'problemas gástricos' => 'Gástrico',
+            'problema gástricos' => 'Gástrico',
+            'respiratório' => 'Respiratório',
+            'respiratorio' => 'Respiratório',
+            'problemas respiratórios' => 'Respiratório',
+            'articular/reumatismo' => 'Articular/Reumatismo',
+            'problemas articulares' => 'Articular/Reumatismo',
+            'diabetes' => 'Diabetes',
+            'hipertensão' => 'Hipertensão',
+            'hipertensao' => 'Hipertensão',
+        ];
+        $lower = mb_strtolower(trim($nome));
+        return $map[$lower] ?? $nome;
     }
 
     // Dados do ambiente familiar: complementos dos responsáveis, composição, renda, endereço e gastos

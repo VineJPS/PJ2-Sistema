@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AtualizarResponsavelCriancaRequest;
 use App\Http\Requests\PessoaAutorizadaRequest;
+use App\Http\Requests\RematriculaRequest;
+use Illuminate\View\View;
 use App\Models\Crianca;
 use App\Models\Endereco;
 use App\Models\PessoaAutorizada;
@@ -341,5 +343,21 @@ class CriancaController extends Controller
         ])->save();
 
         return response()->json(['dataAssinatura' => $assinatura->data_assinatura->format('d/m/Y')]);
+    }
+
+    /** Exibe o formulário de rematrícula da criança. */
+    public function mostrarRematricula(Crianca $crianca): View
+    {
+        return view('components.secoes.criancas.rematricula.rematricula', compact('crianca'));
+    }
+
+    /** Persiste os dados escolares atualizados e ativa o status da criança. */
+    public function salvarRematricula(RematriculaRequest $request, Crianca $crianca): \Illuminate\Http\RedirectResponse
+    {
+        $this->criancas->rematricula($crianca, $request->validated());
+
+        return redirect()
+            ->route('crianca.menu', $crianca->id)
+            ->with('success', 'Rematrícula realizada com sucesso!');
     }
 }

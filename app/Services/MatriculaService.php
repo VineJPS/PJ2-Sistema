@@ -2,10 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\AnamneseHistoricoClinico;
+use App\Models\AnamnesePath;
 use App\Models\Assinatura;
 use App\Models\Autorizacao;
 use App\Models\Crianca;
 use App\Models\Endereco;
+use App\Models\FichaAnamnese;
 use App\Models\Gasto;
 use App\Models\Responsavel;
 use Illuminate\Support\Facades\DB;
@@ -16,9 +19,9 @@ class MatriculaService
      * Grava no banco todos os dados coletados nas etapas da matrícula.
      * A criança fica Ativa se nada estiver pendente; caso contrário, Pendente.
      */
-    public function registrar(array $crianca, array $responsaveis, array $endereco, array $autorizacoes, array $pendencias): Crianca
+    public function registrar(array $crianca, array $responsaveis, array $endereco, array $saude, array $autorizacoes, array $pendencias): Crianca
     {
-        return DB::transaction(function () use ($crianca, $responsaveis, $endereco, $autorizacoes, $pendencias) {
+        return DB::transaction(function () use ($crianca, $responsaveis, $endereco, $saude, $autorizacoes, $pendencias) {
             $enderecoModel = Endereco::create([
                 'estado' => $endereco['estado'],
                 'cidade' => $endereco['cidade'],
@@ -85,6 +88,65 @@ class MatriculaService
                 'beneficio_tipo' => $responsaveis['beneficio_tipo'] ?? null,
                 'beneficio_valor' => $this->moeda($responsaveis['beneficio_valor'] ?? null),
             ]);
+
+            if (!empty($saude)) {
+                $fichaAnamnese = FichaAnamnese::create([
+                    'crianca_id' => $criancaModel->id,
+                    'queixa_principal' => $saude['queixa_principal'] ?? null,
+                    'motivo_atendimento' => 'Matrícula',
+                    'habitos' => $saude['habitos'] ?? null,
+                    'antecedentes_familiares' => $saude['antecedentes_familiares'] ?? null,
+                    'outras_informacoes' => $saude['outras_informacoes'] ?? null,
+                    'medico_assistente' => $saude['medico_assistente'] ?? null,
+                    'medico_telefone' => $saude['medico_telefone'] ?? null,
+                    'data_preenchimento' => $saude['data_preenchimento'] ?? now()->toDateString(),
+                    'declaracao_aceita' => (bool) ($saude['declaracao_aceita'] ?? false),
+                    'assinatura_path' => $saude['assinatura_path'] ?? null,
+                ]);
+
+                AnamneseHistoricoClinico::create([
+                    'ficha_anamnese_id' => $fichaAnamnese->id,
+                    'teve_doenca' => (bool) ($saude['teve_doenca'] ?? false),
+                    'quais_doencas' => !empty($saude['teve_doenca']) ? ($saude['quais_doencas'] ?? null) : null,
+                    'em_tratamento_medico' => (bool) ($saude['em_tratamento_medico'] ?? false),
+                    'qual_tratamento' => !empty($saude['em_tratamento_medico']) ? ($saude['qual_tratamento'] ?? null) : null,
+                    'esta_gravida' => (bool) ($saude['esta_gravida'] ?? false),
+                    'usa_medicacao' => (bool) ($saude['usa_medicacao'] ?? false),
+                    'quais_medicacoes' => !empty($saude['usa_medicacao']) ? ($saude['quais_medicacoes'] ?? null) : null,
+                    'tem_alergia' => (bool) ($saude['tem_alergia'] ?? false),
+                    'quais_alergias' => !empty($saude['tem_alergia']) ? ($saude['quais_alergias'] ?? null) : null,
+                    'instrucao_alergia' => $saude['instrucao_alergia'] ?? null,
+                    'ja_foi_operado' => (bool) ($saude['ja_foi_operado'] ?? false),
+                    'quais_cirurgias' => !empty($saude['ja_foi_operado']) ? ($saude['quais_cirurgias'] ?? null) : null,
+                    'problema_visao' => false,
+                    'problema_audicao' => false,
+                    'problema_fala' => false,
+                ]);
+
+                $patologias = $saude['patologias'] ?? [];
+                $doencasEspecificas = [
+                    ['nome' => 'Febre reumática',      'selecionado' => (bool) ($patologias['febre_reumatica'] ?? false)],
+                    ['nome' => 'Cardíaco',             'selecionado' => (bool) ($patologias['problemas_cardiacos'] ?? false)],
+                    ['nome' => 'Renal',                'selecionado' => (bool) ($patologias['problemas_renais'] ?? false)],
+                    ['nome' => 'Gástrico',             'selecionado' => (bool) ($patologias['problemas_gastricos'] ?? false)],
+                    ['nome' => 'Respiratório',         'selecionado' => (bool) ($patologias['problemas_respiratorios'] ?? false)],
+                    ['nome' => 'Articular/Reumatismo', 'selecionado' => (bool) ($patologias['problemas_articulares'] ?? false)],
+                    ['nome' => 'Diabetes',             'selecionado' => (bool) ($patologias['diabetes'] ?? false)],
+                    ['nome' => 'Hipertensão',          'selecionado' => (bool) ($patologias['hipertensao'] ?? false)],
+                ];
+
+                AnamnesePath::create([
+                    'ficha_anamnese_id' => $fichaAnamnese->id,
+                    'problemas_cardiacos' => (bool) ($patologias['problemas_cardiacos'] ?? false),
+                    'problemas_pulmonares' => (bool) ($patologias['problemas_respiratorios'] ?? false),
+                    'problemas_gastrointestinais' => (bool) ($patologias['problemas_gastricos'] ?? false),
+                    'problemas_alergicos' => (bool) ($patologias['problemas_alergicos'] ?? false),
+                    'problema_cicatrizacao' => (bool) ($saude['problema_cicatrizacao'] ?? false),
+                    'alerta_anestesia' => (bool) ($saude['alerta_anestesia'] ?? false),
+                    'hemorragia' => (bool) ($saude['hemorragia'] ?? false),
+                    'doencas_especificas' => $doencasEspecificas,
+                ]);
+            }
 
             $autorizacao = Autorizacao::create([
                 'crianca_id' => $criancaModel->id,

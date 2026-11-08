@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Matricula\AutorizacoesRequest;
+use App\Http\Requests\Matricula\CriancaRequest;
+use App\Http\Requests\Matricula\EnderecoRequest;
 use App\Http\Requests\Matricula\ResponsaveisRequest;
+use App\Http\Requests\Matricula\SaudeRequest;
 use App\Services\MatriculaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -39,30 +42,9 @@ class MatriculaController extends Controller
         return $disco->response($caminho);
     }
 
-    public function salvarCrianca(Request $request): RedirectResponse
+    public function salvarCrianca(CriancaRequest $request): RedirectResponse
     {
-        $dados = $request->validate([
-            'foto' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:5120'],
-            'nome' => ['required', 'string', 'max:255'],
-            'data_nascimento' => ['required', 'date', 'before_or_equal:today'],
-            'cpf' => ['nullable', 'regex:/^\d{3}\.\d{3}\.\d{3}-\d{2}$/', Rule::unique('criancas', 'cpf')],
-            'rg' => ['nullable', 'string', 'max:20'],
-            'escola' => ['required', 'string', 'max:255'],
-            'periodo' => ['required', 'in:Matutino,Vespertino,Integral'],
-            'serie' => ['required', 'string', 'max:50'],
-            'turma_betel' => ['required', 'in:Turma 1,Turma 2,Turma 3'],
-        ], [
-            'required' => 'Preencha este campo.',
-            'foto.image' => 'Envie uma imagem PNG ou JPG.',
-            'foto.mimes' => 'Envie uma imagem PNG ou JPG.',
-            'foto.max' => 'A foto deve ter no máximo 5MB.',
-            'data_nascimento.date' => 'Informe uma data válida.',
-            'data_nascimento.before_or_equal' => 'A data não pode ser futura.',
-            'cpf.regex' => 'Informe o CPF no formato 000.000.000-00.',
-            'cpf.unique' => 'Já existe uma criança cadastrada com este CPF.',
-            'periodo.in' => 'Selecione um período válido.',
-            'turma_betel.in' => 'Selecione uma turma válida.',
-        ]);
+        $dados = $request->validated();
 
         unset($dados['foto']);
 
@@ -130,7 +112,7 @@ class MatriculaController extends Controller
         ]);
     }
 
-    public function salvarEndereco(Request $request): RedirectResponse
+    public function salvarEndereco(EnderecoRequest $request): RedirectResponse
     {
         if (!session()->has(self::SESSAO_CRIANCA)) {
             return redirect()->route('matricula.crianca');
@@ -140,27 +122,7 @@ class MatriculaController extends Controller
             return redirect()->route('matricula.responsaveis');
         }
 
-        $request->merge(['estado' => strtoupper((string) $request->input('estado'))]);
-
-        $dados = $request->validate([
-            'rua' => ['required', 'string', 'max:255'],
-            'numero' => ['required', 'string', 'max:20'],
-            'bairro' => ['required', 'string', 'max:100'],
-            'cidade' => ['required', 'string', 'max:100'],
-            'estado' => ['required', 'regex:/^[A-Z]{2}$/'],
-            'ponto_referencia' => ['nullable', 'string', 'max:255'],
-            'tipo_moradia' => ['required', 'in:Própria,Cedida,Alugada'],
-            'valor_aluguel' => ['required_if:tipo_moradia,Alugada', 'nullable', 'string', 'max:20'],
-            'agua' => ['nullable', 'string', 'max:20'],
-            'energia' => ['nullable', 'string', 'max:20'],
-            'alimentacao' => ['nullable', 'string', 'max:20'],
-            'gas' => ['nullable', 'string', 'max:20'],
-        ], [
-            'required' => 'Preencha este campo.',
-            'required_if' => 'Preencha este campo.',
-            'estado.regex' => 'Informe a sigla do estado (ex: SP).',
-            'tipo_moradia.in' => 'Selecione o tipo de moradia.',
-        ]);
+        $dados = $request->validated();
 
         if ($dados['tipo_moradia'] !== 'Alugada') {
             $dados['valor_aluguel'] = null;
@@ -177,16 +139,33 @@ class MatriculaController extends Controller
             return $pendente;
         }
 
-        return view('components.secoes.matriculas.fichaSaude.fichaSaude');
+        return view('components.secoes.matriculas.fichaSaude.fichaSaude', [
+            'dados' => session(self::SESSAO_SAUDE, []),
+        ]);
     }
 
-    public function salvarSaude(): RedirectResponse
+    public function salvarSaude(SaudeRequest $request): RedirectResponse
     {
         if ($pendente = $this->etapaPendente([self::SESSAO_CRIANCA, self::SESSAO_RESPONSAVEIS, self::SESSAO_ENDERECO])) {
             return $pendente;
         }
 
-        session([self::SESSAO_SAUDE => true]);
+        $dados = $request->validated();
+
+        // Upload da assinatura
+        $assinaturaAnterior = session(self::SESSAO_SAUDE . '.assinatura_path');
+        unset($dados['assinatura']);
+
+        if ($request->hasFile('assinatura')) {
+            $dados['assinatura_path'] = $request->file('assinatura')->store('matriculas/saude-assinaturas', 'public');
+            if ($assinaturaAnterior) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($assinaturaAnterior);
+            }
+        } else {
+            $dados['assinatura_path'] = $assinaturaAnterior;
+        }
+
+        session([self::SESSAO_SAUDE => $dados]);
 
         return redirect()->route('matricula.autorizacoes');
     }
@@ -231,6 +210,7 @@ class MatriculaController extends Controller
             session(self::SESSAO_CRIANCA),
             session(self::SESSAO_RESPONSAVEIS),
             session(self::SESSAO_ENDERECO),
+            session(self::SESSAO_SAUDE, []),
             $dados,
             $pendencias,
         );
@@ -305,6 +285,11 @@ class MatriculaController extends Controller
         }
         if (blank($autorizacoes['assinatura_path'] ?? null)) {
             $pendencias[] = 'arquivo de assinatura';
+        }
+
+        $saude = session(self::SESSAO_SAUDE, []);
+        if (blank($saude['assinatura_path'] ?? null)) {
+            $pendencias[] = 'arquivo de assinatura de saúde';
         }
 
         return $pendencias;
